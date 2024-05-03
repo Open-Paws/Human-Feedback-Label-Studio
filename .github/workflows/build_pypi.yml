@@ -1,0 +1,216 @@
+name: "Build PYPI"
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Version'
+        type: string
+        required: true
+      ref:
+        description: 'Ref'
+        type: string
+        required: true
+      upload_to_pypi:
+        description: "Upload to PyPi"
+        type: boolean
+        required: false
+      release-id:
+        description: "Attach Artifact to Release"
+        type: string
+        required: false
+    outputs:
+      pipy-artifact-url:
+        description: "PyPI Artifact URL"
+        value: ${{ jobs.pypi.outputs.pipy-artifact-url }}
+      pipy-artifact-digests-sha256:
+        description: "PyPI Artifact SHA256"
+        value: ${{ jobs.pypi.outputs.pipy-artifact-digests-sha256 }}
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        type: string
+        required: true
+      ref:
+        description: 'Ref'
+        type: string
+        required: true
+      upload_to_pypi:
+        description: "Upload to PyPi"
+        type: boolean
+        default: false
+        required: false
+      release-id:
+        description: "Attach Artifact to Release"
+        type: string
+        required: false
+
+env:
+  PYTHON_VERSION_FILE: "pyproject.toml"
+  FRONTEND_MONOREPO_DIR: "web"
+
+jobs:
+  pypi:
+    name: "PyPI"
+    runs-on: ubuntu-latest
+    outputs:
+      pipy-artifact-url: ${{ steps.pypi-package-details.outputs.pipy-artifact-url }}
+      pipy-artifact-digests-sha256: ${{ steps.pypi-package-details.outputs.pipy-artifact-digests-sha256 }}
+    steps:
+      - uses: hmarr/debug-action@v3.0.0
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Install toml
+        run: |
+          set -euo pipefail
+          wget -q -O- "https://github.com/gnprice/toml-cli/releases/download/v0.2.3/toml-0.2.3-x86_64-linux.tar.gz" | tar -xz -C .
+          mv toml-0.2.3-x86_64-linux/toml toml
+          chmod +x toml
+
+      - name: Manage version
+        env:
+          PROVIDED_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          version=$(sed "s/^v//g" <<< ${PROVIDED_VERSION})
+          ./toml set '${{ env.PYTHON_VERSION_FILE }}' tool.poetry.version "$version" > pyproject.toml.new
+          mv -f pyproject.toml.new pyproject.toml
+
+      - name: Setup frontend environment
+        uses: ./.github/actions/setup-frontend-environment
+        with:
+          node-version: "${{ env.NODE }}"
+          directory: "${{ env.FRONTEND_MONOREPO_DIR }}"
+
+      - name: "Build"
+        working-directory: "${{ env.FRONTEND_MONOREPO_DIR }}"
+        run: yarn build
+
+      - name: "Generate version files"
+        continue-on-error: true
+        working-directory: "${{ env.FRONTEND_MONOREPO_DIR }}"
+        run: yarn version:libs
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Set up Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install Python dependencies
+        run: poetry install --with build
+
+      - name: Collect static
+        run: poetry run python label_studio/manage.py collectstatic
+
+      - name: Download feature flags
+        env:
+          LAUNCHDARKLY_COMMUNITY_SDK_KEY: ${{ secrets.LAUNCHDARKLY_COMMUNITY_SDK_KEY }}
+          LAUNCHDARKLY_DOWNLOAD_PATH: "label_studio/feature_flags.json"
+        run: |
+          set -xeuo pipefail
+          curl \
+            --connect-timeout 30 \
+            --retry 5 \
+            --retry-delay 10 \
+            -H "Authorization: $LAUNCHDARKLY_COMMUNITY_SDK_KEY" \
+            "https://sdk.launchdarkly.com/sdk/latest-all" >"$LAUNCHDARKLY_DOWNLOAD_PATH"
+          if [ "$(jq 'has("flags")' <<< cat $LAUNCHDARKLY_DOWNLOAD_PATH)" = "true" ]; then
+            echo "feature_flags.json is valid"
+          else
+            echo "feature_flags.json is invalid"
+            cat $LAUNCHDARKLY_DOWNLOAD_PATH
+            exit 1
+          fi
+
+      - name: Package
+        env:
+          VERSION_OVERRIDE: ${{ inputs.version }}
+        run: poetry build
+
+      - name: Upload to PYPI
+        if: inputs.upload_to_pypi
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_APIKEY }}
+        run: poetry run twine upload dist/*
+
+      - name: Get PyPI package details
+        id: pypi-package-details
+        if: inputs.upload_to_pypi
+        uses: actions/github-script@v7
+        env:
+          VERSION: ${{ inputs.version }}
+        with:
+          github-token: ${{ secrets.GIT_PAT }}
+          script: |
+            const version = process.env.VERSION
+            const MAX_ATTEMPTS = 10
+            let currentAttempt = 0
+            const intervalId = setInterval(async () => {
+              currentAttempt++
+              console.log(`Attempt ${currentAttempt}`)
+              const {data: pypiPackage} = await github.request('https://pypi.org/pypi/label-studio/json')
+              if ('releases' in pypiPackage && version in pypiPackage.releases) {
+                const release = pypiPackage.releases[version]
+                const artifact = release.find(e => e.packagetype === 'sdist')
+                console.log(artifact);
+                core.setOutput("pipy-artifact-url", artifact.url);
+                core.setOutput("pipy-artifact-digests-sha256", artifact.digests.sha256);
+                clearInterval(intervalId)
+              } else if (currentAttempt >= MAX_ATTEMPTS) {
+                clearInterval(intervalId)
+                throw Error('Max attempts exceeded')
+              }
+            }, 60 * 1000 )
+
+      - name: Attach artifacts to release
+        if: inputs.release-id
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GIT_PAT }}
+          script: |
+            const { repo, owner } = context.repo;
+            const fs = require('fs');
+            const release_id = '${{ inputs.release-id }}';
+            for (let file of await fs.readdirSync('./dist/')) {
+               console.log('uploadReleaseAsset', file);
+               await github.rest.repos.uploadReleaseAsset({
+                  owner,
+                  repo,
+                  release_id: release_id,
+                  name: file,
+                  data: await fs.readFileSync(`./dist/${file}`)
+               });
+            }
+
+      - name: Check file size
+        env:
+          DIST_DIR: "./dist"
+          THRESHOLD: "100"
+        run: |
+          result=true
+          for file in $(find "${DIST_DIR}" -maxdepth 1 -type f); do
+            size=$(du -m "$file" | cut -f1)
+            if [ $size -ge $THRESHOLD ]; then
+              echo "::error::${file}(${size}Mb) exceeds size threshold(${THRESHOLD}Mb)"
+              result=false
+            fi
+          done
+          if [ "${result}" != "true" ]; then
+            exit 1
+          fi
+
+      - name: Upload to artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Dist
+          path: dist/
