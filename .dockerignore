@@ -1,0 +1,24 @@
+# Ignore everything:
+**
+
+# Except:
+!deploy/docker-entrypoint.d/**
+!deploy/docker-entrypoint.sh
+!deploy/heroku_run.sh
+!deploy/uwsgi.ini
+!deploy/default.conf
+!label_studio/**
+label_studio/frontend
+
+# FRONTEND
+!web
+!.git
+# Re-ignore node_modules and nx cache
+**/node_modules
+**/.nx
+
+!README.md
+!licenses/**
+!LICENSE
+!pyproject.toml
+!poetry.lock

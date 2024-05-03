@@ -1,0 +1,69 @@
+name: "Frontend build"
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Ref"
+        required: true
+        type: string
+
+env:
+  NODE: "18"
+  FRONTEND_MONOREPO_DIR: "web"
+  FRONTEND_BUILD_COMMIT_MESSAGE: "ci: Build frontend"
+  DOCS_TARGET_DIR: "docs/source/tags"
+
+jobs:
+  build:
+    name: "Frontend"
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+      - uses: hmarr/debug-action@v3.0.0
+
+      - name: Configure git
+        shell: bash
+        run: |
+          set -xeuo pipefail
+          git config --global user.name 'robot-ci-heartex'
+          git config --global user.email 'robot-ci-heartex@users.noreply.github.com'
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GIT_PAT }}
+          ref: ${{ inputs.ref }}
+
+      - name: Setup frontend environment
+        uses: ./.github/actions/setup-frontend-environment
+        with:
+          node-version: "${{ env.NODE }}"
+          directory: "${{ env.FRONTEND_MONOREPO_DIR }}"
+
+      - name: "Build"
+        working-directory: "${{ env.FRONTEND_MONOREPO_DIR }}"
+        run: yarn build
+
+      - name: "Generate version files"
+        continue-on-error: true
+        working-directory: "${{ env.FRONTEND_MONOREPO_DIR }}"
+        run: yarn version:libs
+
+      - name: "Generate docs tags files"
+        continue-on-error: true
+        working-directory: "${{ env.FRONTEND_MONOREPO_DIR }}"
+        run: yarn docs
+
+      - name: "Commit and Push"
+        run: |
+          git add "${{ env.FRONTEND_MONOREPO_DIR }}" || true
+          git add "${{ env.DOCS_TARGET_DIR }}" || true
+          git status -s
+          git commit -m '${{ env.FRONTEND_BUILD_COMMIT_MESSAGE }}' -m 'Workflow run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}' || true
+          git push origin HEAD
