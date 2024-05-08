@@ -7,7 +7,7 @@ on:
 
 env:
   IMAGE_NAME: "ghcr.io/${{ github.repository_owner }}/label-studio"
-  TAGS: "latest,dev"  # Example tags, set as needed
+  TAGS: "latest"  
   BASE_DOCKER_IMAGE_VERSION: "1.0"  # Example version, set as needed
   DOCKERFILE_PATH: "Dockerfile"  # Example path, set as needed
   REF: ${{ github.ref }}
@@ -43,11 +43,6 @@ jobs:
             const docker_tags = tags.map(x => `${image_name}:${x}`).join(',');
             console.log(docker_tags);
             core.setOutput("docker-tags", docker_tags);
-
-      - name: Edit Dockerfile
-        run: |
-          sed -i "s#^FROM .*#FROM ${IMAGE_NAME}:${BASE_DOCKER_IMAGE_VERSION}#g" "${DOCKERFILE_PATH}"
-          cat "${DOCKERFILE_PATH}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.3.0
