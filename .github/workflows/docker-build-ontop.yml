@@ -7,37 +7,44 @@ on:
         description: 'Base Docker Image version'
         type: string
         required: true
+        default: "1"
       tags:
         description: 'Comma separated tags'
         type: string
         required: true
+        default: "latest"
       dockerfile_path:
         description: "Dockerfile path"
         type: string
         required: true
+        default: "Dockerfile"
       ref:
         description: "Dockerfile ref or sha"
         type: string
         required: true
+        default: "master"
   workflow_dispatch:
     inputs:
       base_docker_image_version:
         description: 'Base Docker Image version'
         type: string
         required: true
+        default: "1"
       tags:
         description: 'Comma separated tags'
         type: string
         required: true
+        default: "latest"
       dockerfile_path:
         description: "Dockerfile path"
         type: string
         required: true
+        default: "Dockerfile"
       ref:
         description: "Dockerfile ref or sha"
         type: string
         required: true
-        default: develop
+        default: master
 
 env:
   IMAGE_NAME: "ghcr.io/${{ github.repository_owner }}/label-studio"
