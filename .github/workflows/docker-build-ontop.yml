@@ -7,40 +7,47 @@ on:
         description: 'Base Docker Image version'
         type: string
         required: true
+        default: "1"
       tags:
         description: 'Comma separated tags'
         type: string
         required: true
+        default: "latest"
       dockerfile_path:
         description: "Dockerfile path"
         type: string
         required: true
+        default: "Dockerfile"
       ref:
         description: "Dockerfile ref or sha"
         type: string
         required: true
+        default: "master"
   workflow_dispatch:
     inputs:
       base_docker_image_version:
         description: 'Base Docker Image version'
         type: string
         required: true
+        default: "1"
       tags:
         description: 'Comma separated tags'
         type: string
         required: true
+        default: "latest"
       dockerfile_path:
         description: "Dockerfile path"
         type: string
         required: true
+        default: "Dockerfile"
       ref:
         description: "Dockerfile ref or sha"
         type: string
         required: true
-        default: develop
+        default: master
 
 env:
-  IMAGE_NAME: "${{ vars.DOCKERHUB_ORG }}/label-studio"
+  IMAGE_NAME: "ghcr.io/${{ github.repository_owner }}/label-studio"
 
 jobs:
   docker_build_and_push:
@@ -84,11 +91,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.3.0
 
-      - name: Login to DockerHub
+      - name: Login to GHCR
         uses: docker/login-action@v3.1.0
         with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push Docker image
         uses: docker/build-push-action@v5.3.0
