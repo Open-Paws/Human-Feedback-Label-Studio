@@ -2,7 +2,7 @@ import React from "react";
 import { Rate } from "antd";
 import { inject, observer } from "mobx-react";
 import { types } from "mobx-state-tree";
-import { StarOutlined } from "@ant-design/icons";
+import { StarOutlined, HeartOutlined, FireOutlined, SmileOutlined } from "@ant-design/icons";
 
 import RequiredMixin from "../../mixins/Required";
 import PerRegionMixin from "../../mixins/PerRegion";
@@ -143,6 +143,18 @@ const HtxRating = inject("store")(
       iconSize = 40;
     }
 
+    const renderRatingIcon = () => {
+      const iconMap = {
+        heart: HeartOutlined,
+        fire: FireOutlined,
+        smile: SmileOutlined,
+        star: StarOutlined,
+      };
+
+      const IconComponent = iconMap[item.icon] || StarOutlined;
+      return <IconComponent style={{ fontSize: iconSize }} />;
+    };
+
     const visibleStyle = item.perRegionVisible() ? {} : { display: "none" };
 
     // rc-rate component listens for keypress event and hit the star if the key is Enter
@@ -162,7 +174,7 @@ const HtxRating = inject("store")(
     return (
       <div style={visibleStyle} onKeyDownCapture={dontBreakSubmit}>
         <Rate
-          character={<StarOutlined style={{ fontSize: iconSize }} />}
+          character={renderRatingIcon}
           value={item.rating}
           count={Number(item.maxrating)}
           defaultValue={Number(item.defaultvalue)}
