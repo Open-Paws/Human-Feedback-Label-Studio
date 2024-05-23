@@ -37,7 +37,7 @@ jobs:
         with:
           script: |
             const raw_tags_input = process.env.TAGS;
-            const image_name = process.env.IMAGE_NAME;
+            const image_name = process.env.IMAGE_NAME.toLowerCase();
             
             const tags = raw_tags_input.split(',').map(x => x.trim());
             const docker_tags = tags.map(x => `${image_name}:${x}`).join(',');
