@@ -20,13 +20,12 @@ COPY web/package.json .
 COPY web/yarn.lock .
 COPY web/tools tools
 COPY --chown=1001:0 .git .git
+RUN chmod -R 777 .git
 RUN yarn install --prefer-offline --no-progress --pure-lockfile --frozen-lockfile --ignore-engines --non-interactive --production=false
 
 COPY web .
 COPY pyproject.toml ../pyproject.toml
-USER root
 RUN yarn run build && yarn version:libs
-USER 1001
 
 FROM ubuntu:22.04
 
