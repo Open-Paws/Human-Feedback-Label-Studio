@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 ARG NODE_VERSION=18
-
+ARG BUILDPLATFORM=linux/amd64
 ################################ Stage: frontend-builder (build frontend assets)
 FROM --platform=${BUILDPLATFORM} node:${NODE_VERSION} AS frontend-builder
 ENV BUILD_NO_SERVER=true \
