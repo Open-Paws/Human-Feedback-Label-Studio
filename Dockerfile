@@ -24,7 +24,9 @@ RUN yarn install --prefer-offline --no-progress --pure-lockfile --frozen-lockfil
 
 COPY web .
 COPY pyproject.toml ../pyproject.toml
+USER root
 RUN yarn run build && yarn version:libs
+USER 1001
 
 FROM ubuntu:22.04
 
