@@ -10,6 +10,9 @@ ENV BUILD_NO_SERVER=true \
     YARN_CACHE_FOLDER=/root/web/.yarn \
     NODE_ENV=production
 
+RUN docker clone https://github.com/Open-Paws/Human-Feedback-Label-Studio.git repo
+RUN copy -r -f repo/.git/ /label-studio/.git/
+
 WORKDIR /label-studio/web
 
 # Fix Docker Arm64 Build
