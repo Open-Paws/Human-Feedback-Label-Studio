@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 ARG NODE_VERSION=18
-
+ARG BUILDPLATFORM=linux/amd64
 ################################ Stage: frontend-builder (build frontend assets)
 FROM --platform=${BUILDPLATFORM} node:${NODE_VERSION} AS frontend-builder
 ENV BUILD_NO_SERVER=true \
@@ -19,14 +19,24 @@ RUN yarn config set network-timeout 1200000 # HTTP timeout used when downloading
 COPY web/package.json .
 COPY web/yarn.lock .
 COPY web/tools tools
-RUN --mount=type=cache,target=${YARN_CACHE_FOLDER},sharing=locked \
-    yarn install --prefer-offline --no-progress --pure-lockfile --frozen-lockfile --ignore-engines --non-interactive --production=false
+
+# Initialize a new Git repository
+RUN git init
+# Configure Git with the necessary credentials
+RUN git config --global user.email "you@example.com"
+RUN git config --global user.name "Your Name"
+# Create a dummy commit
+RUN git commit --allow-empty -m "Initial commit"
+# Create and check out a branch
+RUN git checkout -b main
+# Copy the git files into the new repo
+COPY .git/ .git/
+
+RUN yarn install --prefer-offline --no-progress --pure-lockfile --frozen-lockfile --ignore-engines --non-interactive --production=false
 
 COPY web .
 COPY pyproject.toml ../pyproject.toml
-RUN --mount=type=cache,target=${YARN_CACHE_FOLDER},sharing=locked \
-    --mount=type=bind,source=.git,target=../.git \
-    yarn run build && yarn version:libs
+RUN yarn run build && yarn version:libs
 
 FROM ubuntu:22.04
 
@@ -51,8 +61,7 @@ RUN set -eux \
     apt-get purge --assume-yes --auto-remove --option APT::AutoRemove::RecommendsImportant=false \
      --option APT::AutoRemove::SuggestsImportant=false && rm -rf /var/lib/apt/lists/* /tmp/*
 
-RUN --mount=type=cache,target=$PIP_CACHE_DIR,uid=1001,gid=0 \
-    pip3 install --upgrade pip setuptools && pip3 install poetry uwsgi uwsgitop
+RUN pip3 install --upgrade pip setuptools && pip3 install poetry uwsgi uwsgitop
 
 # incapsulate nginx install & configure to a single layer
 RUN set -eux; \
@@ -78,8 +87,7 @@ COPY --chown=1001:0 label_studio/__init__.py ./label_studio/__init__.py
 # Ensure the poetry lockfile is up to date, then install all deps from it to
 # the system python. This includes label-studio itself. For caching purposes,
 # do this before copying the rest of the source code.
-RUN --mount=type=cache,target=$POETRY_CACHE_DIR \
-    poetry check --lock && poetry install
+RUN poetry check --lock && poetry install
 
 COPY --chown=1001:0 LICENSE LICENSE
 COPY --chown=1001:0 licenses licenses
@@ -91,9 +99,6 @@ COPY --chown=1001:0 --from=frontend-builder /label-studio/web/dist $LS_DIR/web/d
 RUN python3 label_studio/manage.py collectstatic --no-input && \
     chown -R 1001:0 $LS_DIR && \
     chmod -R g=u $LS_DIR
-    
-RUN curl -o cloud_sql_proxy https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64
-RUN chmod +x cloud_sql_proxy 
 
 ENV HOME=$LS_DIR
 
