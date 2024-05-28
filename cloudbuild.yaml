@@ -1,8 +1,10 @@
 steps:
 - name: 'gcr.io/cloud-builders/git'
-  args: ['clone', 'https://github.com/username/repo.git']
+  args: ['clone', 'https://github.com/Open-Paws/Human-Feedback-Label-Studio.git']
 - name: 'gcr.io/cloud-builders/yarn'
   args: ['install']
+- name: 'gcr.io/cloud-builders/yarn'
+  args: ['build']
 - name: 'gcr.io/cloud-builders/yarn'
   args: ['version:libs']
 
