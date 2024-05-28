@@ -1,0 +1,10 @@
+steps:
+- name: 'gcr.io/cloud-builders/git'
+  args: ['clone', 'https://github.com/username/repo.git']
+- name: 'gcr.io/cloud-builders/yarn'
+  args: ['install']
+- name: 'gcr.io/cloud-builders/yarn'
+  args: ['version:libs']
+
+options:
+  logging: CLOUD_LOGGING_ONLY

@@ -20,18 +20,6 @@ COPY web/package.json .
 COPY web/yarn.lock .
 COPY web/tools tools
 
-# Initialize a new Git repository
-RUN git init
-# Configure Git with the necessary credentials
-RUN git config --global user.email "you@example.com"
-RUN git config --global user.name "Your Name"
-# Create a dummy commit
-RUN git commit --allow-empty -m "Initial commit"
-# Create and check out a branch
-RUN git checkout -b main
-# Copy the git files into the new repo
-COPY .git/ .git/
-
 RUN yarn install --prefer-offline --no-progress --pure-lockfile --frozen-lockfile --ignore-engines --non-interactive --production=false
 
 COPY web .
