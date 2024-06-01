@@ -15,7 +15,7 @@ env:
   DOCKERFILE_PATH: "Dockerfile"  # Example path, set as needed
   REF: ${{ github.ref }}
   
-job:
+jobs:
   build-push-artifact:
     runs-on: ubuntu-latest
     steps:
