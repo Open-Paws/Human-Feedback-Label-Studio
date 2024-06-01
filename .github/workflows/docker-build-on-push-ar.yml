@@ -3,8 +3,12 @@ name: Docker Build and Push to Artifact Registry on push
 on:
   push:
     branches: ["main"]
+    permissions:
+      id-token: write
   pull_request:
     branches: ["main"]
+    permissions:
+      id-token: write
 
 permissions:
   id-token: write
@@ -32,6 +36,7 @@ jobs:
           workload_identity_provider: 'projects/333106337415/locations/global/workloadIdentityPools/label-studio-pool/providers/label-studio-oidc-provider'
           service_account: 'label-studio-user@label-studio-424123.iam.gserviceaccount.com'
           access_token_lifetime: '3600s'
+          id_token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v1"
