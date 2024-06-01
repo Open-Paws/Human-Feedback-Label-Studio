@@ -1,0 +1,50 @@
+name: Docker Build and Push to Artifact Registry on push
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  TAGS: "latest"  
+  PROJECT_ID: label-studio-424123
+  REGION: us-central1
+  GAR_LOCATION: us-central1-docker.pkg.dev/label-studio-424123/label-studio/
+  BASE_DOCKER_IMAGE_VERSION: "1.0"  # Example version, set as needed
+  DOCKERFILE_PATH: "Dockerfile"  # Example path, set as needed
+  REF: ${{ github.ref }}
+  
+job:
+  build-push-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v3"
+
+      - id: "auth"
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v0.4.0'
+        with:
+          workload_identity_provider: 'projects/333106337415/locations/global/workloadIdentityPools/label-studio-pool/providers/label-studio-oidc-provider'
+          service_account: 'label-studio-user@label-studio-424123.iam.gserviceaccount.com'
+      
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v1"
+
+      - name: "Use gcloud CLI"
+        run: "gcloud info"
+
+      - name: "Docker auth"
+        run: |-
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.3.0
+
+      - name: Build image
+        run: docker build . --file DOCKERFILE_LOCATION --tag ${{ env.GAR_LOCATION }}
+        working-directory: WORKING_DIRECTORY
+
+      - name: Push image
+        run: docker push ${{ env.GAR_LOCATION }}
