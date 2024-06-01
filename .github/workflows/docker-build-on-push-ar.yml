@@ -46,9 +46,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.3.0
 
-      - name: Build image
-        run: docker build . --file DOCKERFILE_LOCATION --tag ${{ env.GAR_LOCATION }}
-        working-directory: WORKING_DIRECTORY
-
-      - name: Push image
-        run: docker push ${{ env.GAR_LOCATION }}
+      - name: Push Docker image
+        uses: docker/build-push-action@v5.3.0
+        id: docker_build_and_push
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ env.GAR_LOCATION }}
