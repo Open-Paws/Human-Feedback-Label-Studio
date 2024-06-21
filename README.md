@@ -240,6 +240,12 @@ You can use Label Studio as an independent part of your machine learning workflo
 
 Want to use **The Coolest Feature X** but Label Studio doesn't support it? Check out [our public roadmap](roadmap.md)!
 
+
+## Terraform
+To set up a GCP project running Label Studio with persistent storage and web access, use terraform. There is a setup_gcp_terraform.tf file that is up to date as of 6/21/2024. This can be executed with sufficient priviliges to reconsistitute a GCP project. After that, running the pull request actions should push a new image to the registry and get all things back up to date.
+If the file is out of date, rename the imports.tf.bak file to imports.tf, add any new items to the list (use https://registry.terraform.io/providers/hashicorp/google/latest/docs to find the ids). And run 'terraform build -generate-config-out=new_settings.tf'. Then combine the output of that file with the existing setup_gcp_terraform.tf
+
+
 ## Citation
 
 ```tex

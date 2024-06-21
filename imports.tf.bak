@@ -1,0 +1,63 @@
+// To use this file, change the suffix to .tf and run 'terraform plan' 
+// that will regen an up to date terraform config file.
+
+import {
+  id = "label-studio-424123"
+  to = google_project.default
+}
+import {
+  to = google_service_account.default
+  id = "projects/label-studio-424123/serviceAccounts/label-studio-user@label-studio-424123.iam.gserviceaccount.com"
+}
+import {
+  id = "label-studio-424123 roles/artifactregistry.repoAdmin serviceAccount:label-studio-user@label-studio-424123.iam.gserviceaccount.com"
+  to = google_project_iam_member.artifactregistry
+}
+import {
+  id = "label-studio-424123 roles/cloudsql.client serviceAccount:label-studio-user@label-studio-424123.iam.gserviceaccount.com"
+  to = google_project_iam_member.cloudsql
+}
+import {
+  id = "label-studio-424123 roles/logging.bucketWriter serviceAccount:label-studio-user@label-studio-424123.iam.gserviceaccount.com"
+  to = google_project_iam_member.bucketWriter
+}
+import {
+  id = "label-studio-424123 roles/logging.logWriter serviceAccount:label-studio-user@label-studio-424123.iam.gserviceaccount.com"
+  to = google_project_iam_member.logWriter
+}
+import {
+  id = "label-studio-424123 roles/secretmanager.secretAccessor serviceAccount:label-studio-user@label-studio-424123.iam.gserviceaccount.com"
+  to = google_project_iam_member.secretAccessor
+}
+import {
+  id = "label-studio-424123 roles/iam.serviceAccountTokenCreator serviceAccount:label-studio-user@label-studio-424123.iam.gserviceaccount.com"
+  to = google_project_iam_member.serviceAccountTokenCreator
+}
+import {
+  id = "label-studio-424123 roles/storage.admin serviceAccount:label-studio-user@label-studio-424123.iam.gserviceaccount.com"
+  to = google_project_iam_member.storage
+}
+import {
+  id = "projects/label-studio-424123/instances/label-studio-postgres"
+  to = google_sql_database_instance.default
+}
+import {
+  id = "projects/label-studio-424123/instances/label-studio-postgres/databases/postgres"
+  to = google_sql_database.default
+}
+import {
+  id = "projects/label-studio-424123/locations/us-central1/repositories/label-studio"
+  to = google_artifact_registry_repository.default
+}
+import {
+  id = "label-studio-424123/label-studio-output"
+  to = google_storage_bucket.default1
+}
+import {
+  id = "label-studio-424123/label-studio-input-open-paws"
+  to = google_storage_bucket.default2
+}
+import {
+  id = "projects/label-studio-424123/locations/us-central1/services/human-feedback-label-studio"
+  to = google_cloud_run_v2_service.default
+}
