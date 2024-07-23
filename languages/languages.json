@@ -1,0 +1,356 @@
+[
+    {
+        "English": "English"
+    },
+    {
+        "Español": "Spanish"
+    },
+    {
+        "Русский": "Russian"
+    },
+    {
+        "中文 (简体字)": "Chinese - Simplified Characters"
+    },
+    {
+        "中文 (繁體字)": "Chinese - Traditional Characters"
+    },
+    {
+        "Deutsch": "German"
+    },
+    {
+        "Français": "French"
+    },
+    {
+        "Português - Brasileiro": "Portuguese - Brazilian"
+    },
+    {
+        "Português - Europeu": "Portuguese - European"
+    },
+    {
+        "ไทย": "Thai"
+    },
+    {
+        "Català": "Catalan"
+    },
+    {
+        "Italiano": "Italian"
+    },
+    {
+        "Українська": "Ukrainian"
+    },
+    {
+        "日本語": "Japanese"
+    },
+    {
+        "Polski": "Polish"
+    },
+    {
+        "Euskara": "Basque"
+    },
+    {
+        "Tiếng Việt": "Vietnamese"
+    },
+    {
+        "Suomi": "Finnish"
+    },
+    {
+        "Magyar": "Hungarian"
+    },
+    {
+        "العربية": "Arabic"
+    },
+    {
+        "Nederlands": "Dutch"
+    },
+    {
+        "Dansk": "Danish"
+    },
+    {
+        "Türkçe": "Turkish"
+    },
+    {
+        "한국어": "Korean"
+    },
+    {
+        "עברית": "Hebrew"
+    },
+    {
+        "Bahasa Indonesia": "Indonesian"
+    },
+    {
+        "Bahasa Melayu": "Malay"
+    },
+    {
+        "Čeština": "Czech"
+    },
+    {
+        "हिन्दी": "Hindi"
+    },
+    {
+        "Afrikaans": "Afrikaans"
+    },
+    {
+        "አማርኛ": "Amharic"
+    },
+    {
+        "Հայերեն": "Armenian"
+    },
+    {
+        "Azərbaycanca": "Azerbaijani"
+    },
+    {
+        "Ichibemba": "Bemba"
+    },
+    {
+        "বাংলা": "Bengali"
+    },
+    {
+        "Bosanski": "Bosnian"
+    },
+    {
+        "Български": "Bulgarian"
+    },
+    {
+        "မြန်မာစာ": "Burmese"
+    },
+    {
+        "Hrvatski": "Croatian"
+    },
+    {
+        "دری": "Dari - Afghanistan"
+    },
+    {
+        "རྫོང་ཁ": "Dzongkha"
+    },
+    {
+        "Eesti": "Estonian"
+    },
+    {
+        "Filipino": "Filipino"
+    },
+    {
+        "ქართული": "Georgian"
+    },
+    {
+        "Ελληνικά": "Greek"
+    },
+    {
+        "Avañe'ẽ": "Guarani"
+    },
+    {
+        "Kreyòl Ayisyen": "Haitian Creole"
+    },
+    {
+        "Hausa": "Hausa"
+    },
+    {
+        "Íslenska": "Icelandic"
+    },
+    {
+        "ខ្មែរ": "Khmer"
+    },
+    {
+        "Ikinyarwanda": "Kinyarwanda"
+    },
+    {
+        "Ikirundi": "Kirundi"
+    },
+    {
+        "Latviešu": "Latvian"
+    },
+    {
+        "Lietuvių": "Lithuanian"
+    },
+    {
+        "Македонски": "Macedonian"
+    },
+    {
+        "Malagasy": "Malagasy"
+    },
+    {
+        "Malti": "Maltese"
+    },
+    {
+        "नेपाली": "Nepali"
+    },
+    {
+        "Norsk": "Norwegian"
+    },
+    {
+        "پښتو": "Pashto"
+    },
+    {
+        "فارسی": "Persian"
+    },
+    {
+        "Runa Simi": "Quechua"
+    },
+    {
+        "Română": "Romanian"
+    },
+    {
+        "Српски": "Serbian"
+    },
+    {
+        "ChiShona": "Shona"
+    },
+    {
+        "සිංහල": "Sinhala"
+    },
+    {
+        "Slovenčina": "Slovak"
+    },
+    {
+        "Slovenščina": "Slovenian"
+    },
+    {
+        "Soomaali": "Somali"
+    },
+    {
+        "Kiswahili": "Swahili"
+    },
+    {
+        "Svenska": "Swedish"
+    },
+    {
+        "தமிழ்": "Tamil"
+    },
+    {
+        "తెలుగు": "Telugu"
+    },
+    {
+        "ትግርኛ": "Tigrinya"
+    },
+    {
+        "Setswana": "Tswana"
+    },
+    {
+        "Oʻzbekcha": "Uzbek"
+    },
+    {
+        "isiXhosa": "Xhosa"
+    },
+    {
+        "Yorùbá": "Yoruba"
+    },
+    {
+        "isiZulu": "Zulu"
+    },
+    {
+        "ਪੰਜਾਬੀ": "Punjabi"
+    },
+    {
+        "ꦧꦱꦗꦮ": "Javanese"
+    },
+    {
+        "मराठी": "Marathi"
+    },
+    {
+        "മലയാളം": "Malayalam"
+    },
+    {
+        "ಕನ್ನಡ": "Kannada"
+    },
+    {
+        "ଓଡ଼ିଆ": "Odia"
+    },
+    {
+        "मैथिली": "Maithili"
+    },
+    {
+        "ᮘᮞ ᮞᮥᮔ᮪ᮓ": "Sundanese"
+    },
+    {
+        "ગુજરાતી": "Gujarati"
+    },
+    {
+        "ئۇيغۇرچە": "Uighur"
+    },
+    {
+        "سنڌي, सिन्धी": "Sindhi"
+    },
+    {
+        "भोजपुरी": "Bhojpuri"
+    },
+    {
+        "Chinyanja": "Chichewa"
+    },
+    {
+        "চাটগাঁইয়া": "Chittagonian"
+    },
+    {
+        "Kurdî, کوردی": "Kurdish"
+    },
+    {
+        "тоҷикӣ": "Tajik"
+    },
+    {
+        "татар теле": "Tatar"
+    },
+    {
+        "সিলেটি": "Sylheti"
+    },
+    {
+        "অসমীয়া": "Assamese"
+    },
+    {
+        "Azərbaycan dili": "Azerbaijani"
+    },
+    {
+        "Беларуская": "Belarusian"
+    },
+    {
+        "Galego": "Galician"
+    },
+    {
+        "Кыргызча": "Kyrgyz"
+    },
+    {
+        "ລາວ": "Lao"
+    },
+    {
+        "Монгол хэл": "Mongolian"
+    },
+    {
+        "Sepedi": "Northern Sotho"
+    },
+    {
+        "Sardu": "Sardinian"
+    },
+    {
+        "Sesotho": "Southern Sotho"
+    },
+    {
+        "Türkmençe": "Turkmen"
+    },
+    {
+        "Cymraeg": "Welsh"
+    },
+    {
+        "Wollof": "Wolof"
+    },
+    {
+        "اردو": "Urdu"
+    },
+    {
+        "Igbo": "Igbo"
+    },
+    {
+        "Қазақ тілі": "Kazakh"
+    },
+    {
+        "بلوچی": "Balochi"
+    },
+    {
+        "Hmoob": "Hmong"
+    },
+    {
+        "Twi": "Ghana"
+    },
+    {
+        "Lingála": "Lingala"
+    },
+    {
+        "Chichewa": "Chichewa"
+    }
+]
