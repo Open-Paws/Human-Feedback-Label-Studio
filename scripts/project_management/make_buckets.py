@@ -4,6 +4,8 @@
 # The load_language_mappings function reads the languages.json file and returns the language mappings as a dictionary.
 # The create_language_subfolders function creates subfolders in the specified bucket with the given folder prefix and language mappings.
 # The main function loads the language mappings, creates subfolders in the input and output buckets for response generation and feedback, and calls the create_language_subfolders function.
+# It should not need to be rerun unless output folders are deleted, new languages are added, or we need more sets of buckets (like for websites, pdf or videos).
+
 from google.cloud import storage
 import json
 
@@ -31,13 +33,20 @@ def main():
     output_bucket_name = 'label-studio-input-open-paws'
     response_folder_prefix = 'response-generation-'
     feedback_folder_prefix = 'response-feedback-'
+    text_feedback_folder_prefix = 'text-feedback-'
+    image_feedback_folder_prefix = 'image-feedback-'
 
     language_mappings = load_language_mappings(json_file_path)
 
     create_language_subfolders(input_bucket_name, response_folder_prefix, language_mappings)
     create_language_subfolders(input_bucket_name, feedback_folder_prefix, language_mappings)
+    create_language_subfolders(input_bucket_name, text_feedback_folder_prefix, language_mappings)
+    create_language_subfolders(input_bucket_name, image_feedback_folder_prefix, language_mappings)
+
     create_language_subfolders(output_bucket_name, response_folder_prefix, language_mappings)
     create_language_subfolders(output_bucket_name, feedback_folder_prefix, language_mappings)
+    create_language_subfolders(output_bucket_name, text_feedback_folder_prefix, language_mappings)
+    create_language_subfolders(output_bucket_name, image_feedback_folder_prefix, language_mappings)
 
 if __name__ == "__main__":
     main()

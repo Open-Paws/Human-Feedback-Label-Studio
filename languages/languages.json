@@ -183,7 +183,10 @@
         "فارسی": "Persian"
     },
     {
-        "Runa Simi": "Quechua"
+        "Runa Simi I": "Central Quechua"
+    },
+    {
+        "Runa Simi II": "Peripheral Quechua"
     },
     {
         "Română": "Romanian"
@@ -351,6 +354,6 @@
         "Lingála": "Lingala"
     },
     {
-        "Chichewa": "Chichewa"
+        "te reo Māori": "Maori"
     }
 ]

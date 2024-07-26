@@ -1,7 +1,7 @@
 # Explanation
 # This script processes the files in the input bucket, generates a response based on the input dialogue, and uploads the processed file to the output bucket.
 # The process_and_upload_file function reads the file content, processes the data to generate a response, and uploads the processed file to the output bucket.
-# It works for english language only, but can be extended to other languages by changing the paths.
+# It works for English language only, but can be extended to other languages by changing the paths.
 
 from google.cloud import storage
 import json
@@ -14,9 +14,9 @@ output_bucket_name = 'label-studio-input-open-paws'
 feedback_bucket_name = 'label-studio-input-open-paws'
 
 # Path within the bucket where files are located/should be uploaded
-input_path = 'response-generation-english/'
-output_path = 'response-generation-english/'
-feedback_path = 'response-feedback-english/'
+input_path = 'response-generation-English/'
+output_path = 'response-generation-English/'
+feedback_path = 'response-feedback-English/'
 
 def process_and_upload_file(blob, output_bucket, feedback_bucket):
     # Read the file content
