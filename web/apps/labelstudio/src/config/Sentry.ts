@@ -30,6 +30,7 @@ const setTags = () => {
     Sentry.setUser({
       email: APP_SETTINGS.user.email,
       username: APP_SETTINGS.user.username,
+      isAdmin: APP_SETTINGS.user.email.endsWith("@veg3.ai"),
     });
   }
 

@@ -11,7 +11,10 @@ export const ConfigProvider = ({ children }) => {
   const update = (newConfig) => {
     if (!newConfig) return;
 
-    setConfig(newConfig);
+    setConfig((prevConfig) => ({
+      ...prevConfig,
+      ...newConfig,
+    }));
   };
 
   const contextValue = useMemo(() => {

@@ -8,6 +8,7 @@ import { Dropdown } from "../../Common/Dropdown/DropdownComponent";
 import Form from "../../Common/Form/Form";
 import { Menu } from "../../Common/Menu/Menu";
 import { Modal } from "../../Common/Modal/ModalPopup";
+import { Modal as ANTDModal } from "antd";
 import "./ActionsButton.styl";
 
 const isFFLOPSE3 = isFF(FF_LOPS_E_3);
@@ -38,6 +39,13 @@ export const ActionsButton = injector(
     const actions = store.availableActions.filter((a) => !a.hidden).sort((a, b) => a.order - b.order);
 
     const invokeAction = (action, destructive) => {
+      if (destructive) {
+        ANTDModal.warning({
+          title: "Action Prohibited",
+          content: "Destructive actions are not allowed.",
+        });
+        return;
+      }
       if (action.dialog) {
         const { type: dialogType, text, form, title } = action.dialog;
         const dialog = Modal[dialogType] ?? Modal.confirm;

@@ -9,6 +9,7 @@ import { useAPI } from "../../providers/ApiProvider";
 import { useLibrary } from "../../providers/LibraryProvider";
 import { useProject } from "../../providers/ProjectProvider";
 import { useContextProps, useFixedLocation, useParams } from "../../providers/RoutesProvider";
+import { useConfig } from "../../providers/ConfigProvider";
 import { addAction, addCrumb, deleteAction, deleteCrumb } from "../../services/breadrumbs";
 import { Block, Elem } from "../../utils/bem";
 import { isDefined } from "../../utils/helpers";
@@ -24,6 +25,20 @@ const initializeDataManager = async (root, props, params) => {
   if (!window.LabelStudio) throw Error("Label Studio Frontend doesn't exist on the page");
   if (!root && root.dataset.dmInitialized) return;
 
+  const isAdmin = params.isAdmin
+  console.log('isAdmin', isAdmin)
+  let reducedConfig = {...APIConfig}
+
+  if (!isAdmin) {
+    // remove admin only endpoints
+    const { updateAnnotation, deleteAnnotation, ...restEndpoints } = APIConfig.endpoints
+    reducedConfig = {
+      ...APIConfig,
+      endpoints: restEndpoints
+    }
+    console.log('reducedConfig for non-admin', reducedConfig)
+  }
+
   root.dataset.dmInitialized = true;
 
   const { ...settings } = root.dataset;
@@ -36,7 +51,7 @@ const initializeDataManager = async (root, props, params) => {
     project: params.project,
     polling: !window.APP_SETTINGS,
     showPreviews: false,
-    apiEndpoints: APIConfig.endpoints,
+    apiEndpoints: reducedConfig.endpoints,
     interfaces: {
       import: true,
       export: true,
@@ -50,6 +65,7 @@ const initializeDataManager = async (root, props, params) => {
     ...props,
     ...settings,
   };
+  console.log('dmConfig', dmConfig)
 
   return new window.DataManager(dmConfig);
 };
@@ -71,6 +87,9 @@ export const DataManagerPage = ({ ...props }) => {
   const [crashed, setCrashed] = useState(false);
   const dataManagerRef = useRef();
   const projectId = project?.id;
+  const config = useConfig();
+
+  const isAdmin = config.user.email.endsWith('@veg3.ai')
 
   const init = useCallback(async () => {
     if (!LabelStudio) return;
@@ -91,6 +110,7 @@ export const DataManagerPage = ({ ...props }) => {
         ...params,
         project,
         autoAnnotation: isDefined(interactiveBacked),
+        isAdmin: isAdmin,
       })));
 
     Object.assign(window, { dataManager });

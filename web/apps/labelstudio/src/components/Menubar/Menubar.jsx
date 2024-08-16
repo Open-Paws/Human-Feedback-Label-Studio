@@ -1,4 +1,5 @@
 import { createContext, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "antd"
 import { StaticContent } from "../../app/StaticContent/StaticContent";
 import {
   IconBook,
@@ -7,12 +8,14 @@ import {
   IconPersonInCircle,
   IconPin,
   IconTerminal,
+  LsChevronLeft,
   LsDoor,
   LsGitHub,
   LsSettings,
   LsSlack,
 } from "../../assets/icons";
 import { useConfig } from "../../providers/ConfigProvider";
+import { NavLink } from "react-router-dom";
 import { useContextComponent, useFixedLocation } from "../../providers/RoutesProvider";
 import { cn } from "../../utils/bem";
 import { absoluteURL, isDefined } from "../../utils/helpers";
@@ -30,18 +33,61 @@ import { FF_DIA_835, isFF } from "../../utils/feature-flags";
 
 export const MenubarContext = createContext();
 
-const LeftContextMenu = ({ className }) => (
+const navigateBack = () => {
+  const target = route.replace(/^projects/, "");
+
+  if (target) history.push(buildLink(target, { id: params.id }));
+  else history.push("/projects/");
+}
+
+const LeftContextMenu = ({ className, isAdmin }) => (
   <StaticContent id="context-menu-left" className={className}>
-    {(template) => <Breadcrumbs fromTemplate={template} />}
+    {isAdmin ? (template) => <Breadcrumbs fromTemplate={template} />
+    // Add a Back button here that redirects to /projects
+  : <NavLink to={'/projects'}>
+      <LsChevronLeft/>
+    </NavLink>
+  }
   </StaticContent>
 );
 
-const RightContextMenu = ({ className, ...props }) => {
+
+// language reset
+const ChooseLanguage = () => {
+  const config = useConfig();
+  const [languageCode, setLanguageCode] = useState(null);
+
+  useEffect(() => {
+    const configLanguage = config.language
+    const storedLanguage = localStorage.getItem('selectedLanguage');
+    
+    setLanguageCode(configLanguage || storedLanguage);
+  }, []);
+
+  useEffect(() => {
+    // Assuming config has a languageCode property
+    if (config.languageLocalCode) {
+      setLanguageCode(config.languageLocalCode);
+    }
+  }, [config.languageLocalCode]);
+
+  const resetLanguage = () => {
+    localStorage.removeItem("selectedLanguage");
+    config.update({ language: null, languageLocalCode: null });
+    setLanguageCode(null);
+    window.location.href = '/projects';
+  };
+
+  return (<Button onClick={resetLanguage}>🌎 Language: {languageCode}</Button>);
+};
+
+const RightContextMenu = ({ className, isAdmin, ...props }) => {
   const { ContextComponent, contextProps } = useContextComponent();
 
   return ContextComponent ? (
     <div className={className}>
-      <ContextComponent {...props} {...(contextProps ?? {})} />
+      <ChooseLanguage />
+      {isAdmin && <ContextComponent {...props} {...(contextProps ?? {})} />}
     </div>
   ) : (
     <StaticContent id="context-menu-right" className={className} />
@@ -67,6 +113,8 @@ export const Menubar = ({ enabled, defaultOpened, defaultPinned, children, onSid
   const contentClass = cn("content-wrapper");
   const contextItem = menubarClass.elem("context-item");
   const showNewsletterDot = !isDefined(config.user.allow_newsletters);
+
+  const isAdmin = config.user.email.endsWith('@veg3.ai')
 
   const sidebarPin = useCallback(
     (e) => {
@@ -130,17 +178,18 @@ export const Menubar = ({ enabled, defaultOpened, defaultPinned, children, onSid
     <div className={contentClass}>
       {enabled && (
         <div className={menubarClass}>
-          <Dropdown.Trigger dropdown={menuDropdownRef} closeOnClickOutside={!sidebarPinned}>
-            <div className={`${menubarClass.elem("trigger")} main-menu-trigger`}>
-              <img src={absoluteURL("/static/icons/logo-black.svg")} alt="Label Studio Logo" height="22" />
-              <Hamburger opened={sidebarOpened} />
-            </div>
-          </Dropdown.Trigger>
+          {isAdmin && (
+            <Dropdown.Trigger dropdown={menuDropdownRef} closeOnClickOutside={!sidebarPinned}>
+              <div className={`${menubarClass.elem("trigger")} main-menu-trigger`}>
+                <img src={absoluteURL("/static/icons/logo-black.svg")} alt="Label Studio Logo" height="22" />
+                <Hamburger opened={sidebarOpened} />
+              </div>
+            </Dropdown.Trigger>
+          )}
 
           <div className={menubarContext}>
-            <LeftContextMenu className={contextItem.mod({ left: true })} />
-
-            <RightContextMenu className={contextItem.mod({ right: true })} />
+            <LeftContextMenu className={contextItem.mod({ left: true })}  isAdmin={isAdmin}/>
+            <RightContextMenu className={contextItem.mod({ right: true })} isAdmin={isAdmin} />
           </div>
 
           <Dropdown.Trigger
@@ -151,15 +200,6 @@ export const Menubar = ({ enabled, defaultOpened, defaultPinned, children, onSid
                 <Menu.Item icon={<LsSettings />} label="Account &amp; Settings" href="/user/account" data-external />
                 {/* <Menu.Item label="Dark Mode"/> */}
                 <Menu.Item icon={<LsDoor />} label="Log Out" href={absoluteURL("/logout")} data-external />
-                {showNewsletterDot && (
-                  <>
-                    <Menu.Divider />
-                    <Menu.Item className={cn("newsletter-menu-item")} href="/user/account" data-external>
-                      <span>Please check new notification settings in the Account & Settings page</span>
-                      <span className={cn("newsletter-menu-badge")} />
-                    </Menu.Item>
-                  </>
-                )}
               </Menu>
             }
           >
@@ -173,7 +213,7 @@ export const Menubar = ({ enabled, defaultOpened, defaultPinned, children, onSid
 
       <VersionProvider>
         <div className={contentClass.elem("body")}>
-          {enabled && (
+          {enabled && isAdmin && (
             <Dropdown
               ref={menuDropdownRef}
               onToggle={sidebarToggle}
@@ -229,6 +269,7 @@ export const Menubar = ({ enabled, defaultOpened, defaultPinned, children, onSid
               {children}
             </div>
           </MenubarContext.Provider>
+
         </div>
       </VersionProvider>
     </div>

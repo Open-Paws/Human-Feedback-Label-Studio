@@ -1,17 +1,42 @@
 import chr from "chroma-js";
 import { format } from "date-fns";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { LsBulb, LsCheck, LsEllipsis, LsMinus } from "../../assets/icons";
 import { Button, Dropdown, Menu, Pagination, Userpic } from "../../components";
 import { Block, Elem } from "../../utils/bem";
 import { absoluteURL } from "../../utils/helpers";
+import languages from "./languages.json";
+import { Modal, Select } from "antd";
+import { useConfig } from "../../providers/ConfigProvider";
+import 'antd/dist/antd.css';
 
-export const ProjectsList = ({ projects, currentPage, totalItems, loadNextPage, pageSize }) => {
+const { Option } = Select;
+
+export const ProjectsList = ({ projects, currentPage, totalItems, loadNextPage, pageSize, selectedLanguage }) => {
+  // This could be a place to filter projects by language. 
+  // They should have a suffix in their name like "(Spanish)" or "(English)".
+  // This should map to a selected language attribute which we should add to the state.
+
+  // If no language is selected, we should show all projects.
+  // If a language is selected, we should only show projects with that language.
+  // If no language is selected, we show a language selector.
+  const config = useConfig();
+  const isAdmin = config.user.isAdmin;
+
+  const filteredProjects = useMemo(() => {
+    if (!selectedLanguage) {
+      return projects;
+    }
+    return projects.filter((project) => {
+      return project.title.includes(`(${selectedLanguage})`);
+    })
+  })
+
   return (
     <>
       <Elem name="list">
-        {projects.map((project) => (
+        {filteredProjects.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </Elem>
@@ -31,12 +56,38 @@ export const ProjectsList = ({ projects, currentPage, totalItems, loadNextPage, 
   );
 };
 
+export const ProjectLanguageSelector = ({ setSelectedLanguage }) => {
+  return (<Block name="empty-projects-page">
+    <Elem name="heidi" tag="img" src={absoluteURL("/static/images/opossum_looking.png")} />
+    <Elem name="header" tag="h1">
+      Please choose your language.
+    </Elem>
+    <Select
+      showSearch
+      style={{ width: 200 }}
+      placeholder="Select a language"
+      optionFilterProp="children"
+      onChange={setSelectedLanguage}
+      filterOption={(input, option) =>
+        option.children.indexOf(input) >= 0
+      }
+    >
+      {languages.map((language) => (
+        <Option key={language.code} value={language.name}>
+          {language.code} - ({language.name})
+        </Option>
+      ))}
+    </Select>
+  </Block>
+  )
+}
+
 export const EmptyProjectsList = ({ openModal }) => {
   return (
     <Block name="empty-projects-page">
       <Elem name="heidi" tag="img" src={absoluteURL("/static/images/opossum_looking.png")} />
       <Elem name="header" tag="h1">
-        Heidi doesn’t see any projects here
+        Heidi doesn’t see any projects here FOO
       </Elem>
       <p>Create one and start labeling your data</p>
       <Elem name="action" tag={Button} onClick={openModal} look="primary">
@@ -54,11 +105,13 @@ const ProjectCard = ({ project }) => {
   const projectColors = useMemo(() => {
     return color
       ? {
-          "--header-color": color,
-          "--background-color": chr(color).alpha(0.2).css(),
-        }
+        "--header-color": color,
+        "--background-color": chr(color).alpha(0.2).css(),
+      }
       : {};
   }, [color]);
+  const config = useConfig();
+  const isAdmin = config.user.isAdmin;
 
   return (
     <Elem tag={NavLink} name="link" to={`/projects/${project.id}/data`} data-external>
@@ -67,24 +120,26 @@ const ProjectCard = ({ project }) => {
           <Elem name="title">
             <Elem name="title-text">{project.title ?? "New project"}</Elem>
 
-            <Elem
-              name="menu"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
-            >
-              <Dropdown.Trigger
-                content={
-                  <Menu contextual>
-                    <Menu.Item href={`/projects/${project.id}/settings`}>Settings</Menu.Item>
-                    <Menu.Item href={`/projects/${project.id}/data?labeling=1`}>Label</Menu.Item>
-                  </Menu>
-                }
+            {isAdmin && (
+              <Elem
+                name="menu"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
               >
-                <Button size="small" type="text" icon={<LsEllipsis />} />
-              </Dropdown.Trigger>
-            </Elem>
+                <Dropdown.Trigger
+                  content={
+                    <Menu contextual>
+                      <Menu.Item href={`/projects/${project.id}/settings`}>Settings</Menu.Item>
+                      <Menu.Item href={`/projects/${project.id}/data?labeling=1`}>Label</Menu.Item>
+                    </Menu>
+                  }
+                >
+                  <Button size="small" type="text" icon={<LsEllipsis />} />
+                </Dropdown.Trigger>
+              </Elem>
+            )}
           </Elem>
           <Elem name="summary">
             <Elem name="annotation">

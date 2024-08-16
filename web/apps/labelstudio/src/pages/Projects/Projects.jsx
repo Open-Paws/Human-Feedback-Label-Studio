@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams as useRouterParams } from "react-router";
 import { Redirect } from "react-router-dom";
 import { Button } from "../../components";
@@ -12,8 +12,10 @@ import { FF_DEV_2575, isFF } from "../../utils/feature-flags";
 import { CreateProject } from "../CreateProject/CreateProject";
 import { DataManagerPage } from "../DataManager/DataManager";
 import { SettingsPage } from "../Settings";
+import { useConfig } from "../../providers/ConfigProvider";
+import languages from "./languages.json";
 import "./Projects.styl";
-import { EmptyProjectsList, ProjectsList } from "./ProjectsList";
+import { EmptyProjectsList, ProjectsList, ProjectLanguageSelector } from "./ProjectsList";
 
 const getCurrentPage = () => {
   const pageNumberFromURL = new URLSearchParams(location.search).get("page");
@@ -28,12 +30,31 @@ export const ProjectsPage = () => {
   const [networkState, setNetworkState] = React.useState(null);
   const [currentPage, setCurrentPage] = useState(getCurrentPage());
   const [totalItems, setTotalItems] = useState(1);
+  const [selectedLanguage, setSelectedLanguage] = useState();
   const setContextProps = useContextProps();
   const defaultPageSize = Number.parseInt(localStorage.getItem("pages:projects-list") ?? 30);
 
   const [modal, setModal] = React.useState(false);
   const openModal = setModal.bind(null, true);
   const closeModal = setModal.bind(null, false);
+
+  const config = useConfig();
+  useEffect(() => {
+    // Retrieve the selected language from local storage or config when the component mounts
+    const storedLanguage = localStorage.getItem('selectedLanguage');
+    const configLanguage = config.language;
+    if (configLanguage) {
+      setSelectedLanguage(configLanguage);
+    } else if (storedLanguage) {
+      setSelectedLanguage(storedLanguage);
+    }
+  }, []);
+
+  useEffect(() => {
+    config.update({ 
+      language:selectedLanguage, 
+      languageLocalCode: languages.find((language) => language.name === selectedLanguage)?.code });
+  }, [selectedLanguage]);
 
   const fetchProjects = async (page = currentPage, pageSize = defaultPageSize) => {
     setNetworkState("loading");
@@ -57,9 +78,9 @@ export const ProjectsPage = () => {
       params: requestParams,
       ...(isFF(FF_DEV_2575)
         ? {
-            signal: abortController.controller.current.signal,
-            errorFilter: (e) => e.error.includes("aborted"),
-          }
+          signal: abortController.controller.current.signal,
+          errorFilter: (e) => e.error.includes("aborted"),
+        }
         : null),
     });
 
@@ -125,17 +146,20 @@ export const ProjectsPage = () => {
           <Spinner size={64} />
         </Elem>
         <Elem name="content" case="loaded">
-          {projectsList.length ? (
-            <ProjectsList
-              projects={projectsList}
-              currentPage={currentPage}
-              totalItems={totalItems}
-              loadNextPage={loadNextPage}
-              pageSize={defaultPageSize}
-            />
-          ) : (
-            <EmptyProjectsList openModal={openModal} />
-          )}
+          {!selectedLanguage ? (<ProjectLanguageSelector setSelectedLanguage={setSelectedLanguage} />)
+            : projectsList.length ?
+              (
+                <ProjectsList
+                  projects={projectsList}
+                  currentPage={currentPage}
+                  totalItems={totalItems}
+                  loadNextPage={loadNextPage}
+                  pageSize={defaultPageSize}
+                  selectedLanguage={selectedLanguage}
+                />
+              ) : (
+                <EmptyProjectsList openModal={openModal} />
+              )}
           {modal && <CreateProject onClose={closeModal} />}
         </Elem>
       </Oneof>

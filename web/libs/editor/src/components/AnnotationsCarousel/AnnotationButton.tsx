@@ -110,15 +110,16 @@ export const AnnotationButton = observer(
           title: "Delete annotation?",
           body: (
             <>
-              This will <strong>delete all existing regions</strong>. Are you sure you want to delete them?
+              Destructive actions are prohibited.
+              {/* This will <strong>delete all existing regions</strong>. Are you sure you want to delete them?
               <br />
-              This action cannot be undone.
+              This action cannot be undone. */}
             </>
           ),
           buttonLook: "destructive",
           okText: "Delete",
           onOk: () => {
-            entity.list.deleteAnnotation(entity);
+            // entity.list.deleteAnnotation(entity);
           },
         });
       }, [entity]);
@@ -155,12 +156,12 @@ export const AnnotationButton = observer(
           {capabilities.enableAnnotationDelete && !isPrediction && (
             <>
               <Elem name="seperator" />
-              <Elem name="option" mod={{ delete: true }} onClick={deleteAnnotation}>
+              {/* <Elem name="option" mod={{ delete: true }} onClick={deleteAnnotation}>
                 <Elem name="icon">
                   <IconTrashRect width={14} height={18} />
                 </Elem>{" "}
                 Delete Annotation
-              </Elem>
+              </Elem> */}
             </>
           )}
         </Block>
