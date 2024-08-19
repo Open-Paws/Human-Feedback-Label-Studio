@@ -2,7 +2,7 @@ version: "3.9"
 services:
   nginx:
     build: .
-    image: heartexlabs/label-studio:latest
+    image: us-central1-docker.pkg.dev/label-studio-424123/label-studio/label-studio
     restart: unless-stopped
     ports:
       - "8080:8085"
@@ -26,7 +26,7 @@ services:
     stdin_open: true
     tty: true
     build: .
-    image: heartexlabs/label-studio:latest
+    image: us-central1-docker.pkg.dev/label-studio-424123/label-studio/label-studio:latest
     restart: unless-stopped
     expose:
       - "8000"

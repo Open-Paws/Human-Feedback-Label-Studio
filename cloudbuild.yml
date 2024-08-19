@@ -1,7 +1,7 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '--platform=linux/amd64', '-t', 'gcr.io/label-studio-424123/label-studio', '.']
+  args: ['build', '--platform=linux/amd64', '-t', 'us-central1-docker.pkg.dev/label-studio-424123/label-studio-repo/label-studio', '.']
   env:
-  - 'BUILDPLATFORM=linux/amd64'
-  - 'NODE_VERSION=14'
-images: ['gcr.io/label-studio-424123/label-studio']
+  - 'NODE_VERSION=18'
+  - 'DOCKER_BUILDKIT=1'
+images: ['us-central1-docker.pkg.dev/label-studio-424123/label-studio-repo/label-studio']

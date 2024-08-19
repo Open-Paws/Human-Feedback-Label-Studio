@@ -40,7 +40,7 @@ export const ProjectsList = ({ projects, currentPage, totalItems, loadNextPage, 
           <ProjectCard key={project.id} project={project} />
         ))}
       </Elem>
-      <Elem name="pages">
+      {/* <Elem name="pages">
         <Pagination
           name="projects-list"
           label="Projects"
@@ -51,7 +51,7 @@ export const ProjectsList = ({ projects, currentPage, totalItems, loadNextPage, 
           pageSizeOptions={[10, 30, 50, 100]}
           onPageLoad={(page, pageSize) => loadNextPage(page, pageSize)}
         />
-      </Elem>
+      </Elem> */}
     </>
   );
 };
