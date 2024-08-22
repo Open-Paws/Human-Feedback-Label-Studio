@@ -10,6 +10,31 @@ import rules
 logger = logging.getLogger(__name__)
 
 
+# Define a custom predicate
+@rules.predicate
+def is_veg3_admin(user):
+    return user.is_authenticated and user.email.endswith('@veg3.ai')
+
+# Apply the custom rule to delete permissions
+admin_permissions = [
+    'tasks.delete',
+    'tasks.change',
+    'tasks.create',
+    'annotations.delete',
+    'labels.delete',
+    'models.delete',
+    'model_provider_connection.delete',
+    'model_provider_connection.change',
+    'predictions.any',
+    'projects.delete',
+    'projects.change',
+    'projects.create',
+    'organizations.delete',
+    'organizations.change',
+    'organizations.create',
+    'organizations.invite',
+]
+
 class AllPermissions(BaseModel):
     organizations_create = 'organizations.create'
     organizations_view = 'organizations.view'
@@ -64,6 +89,10 @@ def make_perm(name, pred, overwrite=False):
             return
     rules.add_perm(name, pred)
 
-
 for _, permission_name in all_permissions:
     make_perm(permission_name, rules.is_authenticated)
+
+# These override the default 'is_authenticated' permissions
+# To prevent unauthorized access, the permissions are only granted to users with the email domain '@veg3.ai'
+for perm in admin_permissions:
+    make_perm(perm, is_veg3_admin, True)

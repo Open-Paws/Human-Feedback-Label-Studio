@@ -2,7 +2,7 @@
 ARG NODE_VERSION=18
 
 ################################ Stage: frontend-builder (build frontend assets)
-FROM --platform=${BUILDPLATFORM} node:${NODE_VERSION} AS frontend-builder
+FROM  node:${NODE_VERSION} AS frontend-builder
 ENV BUILD_NO_SERVER=true \
     BUILD_NO_HASH=true \
     BUILD_NO_CHUNKS=true \
