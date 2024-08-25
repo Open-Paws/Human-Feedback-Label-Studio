@@ -56,6 +56,13 @@ export const ProjectsList = ({ projects, currentPage, totalItems, loadNextPage, 
   );
 };
 
+const languageLookupFunction = (input, option) => {
+  const normalizedInput = input.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const optionChildren = React.Children.toArray(option.children).join('');
+  const normalizedOption = optionChildren.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return normalizedOption.includes(normalizedInput);
+};
+
 export const ProjectLanguageSelector = ({ setSelectedLanguage }) => {
   return (<Block name="empty-projects-page">
     <Elem name="heidi" tag="img" src={absoluteURL("/static/images/opossum_looking.png")} />
@@ -68,9 +75,7 @@ export const ProjectLanguageSelector = ({ setSelectedLanguage }) => {
       placeholder="Select a language"
       optionFilterProp="children"
       onChange={setSelectedLanguage}
-      filterOption={(input, option) =>
-        option.children.indexOf(input) >= 0
-      }
+      filterOption={languageLookupFunction}
     >
       {languages.map((language) => (
         <Option key={language.code} value={language.name}>
