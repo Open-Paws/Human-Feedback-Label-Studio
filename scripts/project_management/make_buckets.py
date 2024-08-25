@@ -17,15 +17,14 @@ def create_language_subfolders(bucket_name, folder_prefix, language_mappings):
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     
-    for language_mapping in language_mappings:
-        for language in language_mapping.values():
-            folder_name = f"{folder_prefix}{language}/"  # Construct folder name
-            blob = bucket.blob(folder_name)
-            if not blob.exists():  # Check if the folder (blob) already exists
-                blob.upload_from_string('', content_type='application/x-www-form-urlencoded;charset=UTF-8')
-                print(f"Created folder for {language}")
-            else:
-                print(f"Folder for {language} already exists. Skipping.")
+    for language in language_mappings:
+        folder_name = f"{folder_prefix}{language}/"  # Construct folder name
+        blob = bucket.blob(folder_name)
+        if not blob.exists():  # Check if the folder (blob) already exists
+            blob.upload_from_string('', content_type='application/x-www-form-urlencoded;charset=UTF-8')
+            print(f"Created folder for {language}")
+        else:
+            print(f"{folder_prefix} folder for {language} already exists. Skipping.")
 
 def main():
     json_file_path = '../../languages/languages.json'
