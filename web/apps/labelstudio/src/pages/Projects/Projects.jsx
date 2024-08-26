@@ -74,54 +74,65 @@ export const ProjectsPage = () => {
       ].join(",");
     }
 
-    const data = await api.callApi("projects", {
-      params: requestParams,
-      ...(isFF(FF_DEV_2575)
-        ? {
-          signal: abortController.controller.current.signal,
-          errorFilter: (e) => e.error.includes("aborted"),
+    const fetchAllProjects = async () => {
+      let allProjects = [];
+      let page = 1;
+      const pageSize = 1000; // Set a large page size to minimize the number of requests
+    
+      while (true) {
+        const response = await fetch(`/api/projects?page=${page}&pageSize=${pageSize}`);
+        const data = await response.json();
+        allProjects = allProjects.concat(data.results);
+    
+        if (!data.next) {
+          break;
         }
-        : null),
-    });
+        page += 1;
+      }
+    
+      return allProjects;
+    };
+    const data = await fetchAllProjects(); 
+    console.log('data ',data);
 
     setTotalItems(data?.count ?? 1);
-    setProjectsList(data.results ?? []);
+    setProjectsList(data ?? []);
     setNetworkState("loaded");
 
-    if (isFF(FF_DEV_2575) && data?.results?.length) {
-      const additionalData = await api.callApi("projects", {
-        params: {
-          ids: data?.results?.map(({ id }) => id).join(","),
-          include: [
-            "id",
-            "description",
-            "num_tasks_with_annotations",
-            "task_number",
-            "skipped_annotations_number",
-            "total_annotations_number",
-            "total_predictions_number",
-            "ground_truth_number",
-            "finished_task_number",
-          ].join(","),
-          page_size: pageSize,
-        },
-        signal: abortController.controller.current.signal,
-        errorFilter: (e) => e.error.includes("aborted"),
-      });
+    // if (isFF(FF_DEV_2575) && data?.results?.length) {
+    //   const additionalData = await api.callApi("projects", {
+    //     params: {
+    //       ids: data?.results?.map(({ id }) => id).join(","),
+    //       include: [
+    //         "id",
+    //         "description",
+    //         "num_tasks_with_annotations",
+    //         "task_number",
+    //         "skipped_annotations_number",
+    //         "total_annotations_number",
+    //         "total_predictions_number",
+    //         "ground_truth_number",
+    //         "finished_task_number",
+    //       ].join(","),
+    //       page_size: pageSize,
+    //     },
+    //     signal: abortController.controller.current.signal,
+    //     errorFilter: (e) => e.error.includes("aborted"),
+    //   });
 
-      if (additionalData?.results?.length) {
-        setProjectsList((prev) =>
-          additionalData.results.map((project) => {
-            const prevProject = prev.find(({ id }) => id === project.id);
+    //   if (additionalData?.results?.length) {
+    //     setProjectsList((prev) =>
+    //       additionalData.results.map((project) => {
+    //         const prevProject = prev.find(({ id }) => id === project.id);
 
-            return {
-              ...prevProject,
-              ...project,
-            };
-          }),
-        );
-      }
-    }
+    //         return {
+    //           ...prevProject,
+    //           ...project,
+    //         };
+    //       }),
+    //     );
+    //   }
+    // }
   };
 
   const loadNextPage = async (page, pageSize) => {
@@ -139,6 +150,10 @@ export const ProjectsPage = () => {
     setContextProps({ openModal, showButton: projectsList.length > 0 });
   }, [projectsList.length]);
 
+  useEffect(() => {
+    console.log('selectedLanguage changed', selectedLanguage);
+  }, [selectedLanguage]);
+
   return (
     <Block name="projects-page">
       <Oneof value={networkState}>
@@ -147,7 +162,7 @@ export const ProjectsPage = () => {
         </Elem>
         <Elem name="content" case="loaded">
           {!selectedLanguage ? (<ProjectLanguageSelector setSelectedLanguage={setSelectedLanguage} />)
-            : projectsList.length ?
+            :
               (
                 <ProjectsList
                   projects={projectsList}
@@ -157,9 +172,7 @@ export const ProjectsPage = () => {
                   pageSize={defaultPageSize}
                   selectedLanguage={selectedLanguage}
                 />
-              ) : (
-                <EmptyProjectsList openModal={openModal} />
-              )}
+              ) }
           {modal && <CreateProject onClose={closeModal} />}
         </Elem>
       </Oneof>

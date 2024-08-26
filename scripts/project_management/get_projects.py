@@ -8,15 +8,31 @@ def load_languages(json_file_path):
         return json.load(file)
 
 # Get all projects from Label Studio API
-def get_all_projects(api_url, api_token):
+def get_all_projects(api_url, api_token, page_size=1000):
     headers = {
         'Authorization': f'Token {api_token}'
     }
-    response = requests.get(f'{api_url}/api/projects', headers=headers)
-    response.raise_for_status()  # Raise an exception for HTTP errors
-    return response.json()
+    all_projects = []
+    page = 1
 
-# Compare projects with languages and save English and Spanish projects to a file
+    while True:
+        params = {
+            'page_size': page_size,
+            'page': page
+        }
+        response = requests.get(f'{api_url}/api/projects', headers=headers, params=params)
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        data = response.json()
+        projects = data.get('results', [])
+        all_projects.extend(projects)
+        
+        if not data.get('next'):
+            break
+        page += 1
+
+    return all_projects
+
+# Compare projects with languages and save English and Spanish projects to a file\
 def compare_projects_with_languages(projects, languages):
     if isinstance(projects, dict):
         projects = projects.get('results', [])  # Adjust based on actual API response structure
@@ -26,13 +42,13 @@ def compare_projects_with_languages(projects, languages):
     spanish_projects = []
     
     for project in projects:
-        project_name = project['title']
-        for language in languages.keys():
-            if language in project_name:
-                language_projects[language].append(project_name)
-                if language == 'English':
+        project_name = project['title'].lower()  # Convert project name to lowercase
+        for language, non_english_name in languages.items():
+            if language.lower() in project_name or non_english_name.lower() in project_name:  # Check both English and non-English names
+                language_projects[language].append(project['title'])  # Use original project title
+                if language.lower() == 'english':
                     english_projects.append(project)
-                elif language == 'Spanish':
+                elif language.lower() == 'spanish':
                     spanish_projects.append(project)
     
     for language, projects in language_projects.items():
@@ -44,7 +60,6 @@ def compare_projects_with_languages(projects, languages):
     # Save English and Spanish projects to a temporary file
     with open('english_spanish_projects.json', 'w') as file:
         json.dump({'English': english_projects, 'Spanish': spanish_projects}, file, indent=4)
-
 def main():
     json_file_path = '../../languages/languages.json'
     api_url = os.getenv('LABEL_STUDIO_URL')  # Read API URL from environment variable
@@ -57,7 +72,7 @@ def main():
         raise ValueError("API token not found. Please set the LABEL_STUDIO_API_TOKEN environment variable.")
 
     languages = load_languages(json_file_path)
-    projects = get_all_projects(api_url, api_token)
+    projects = get_all_projects(api_url, api_token, 10000)
     compare_projects_with_languages(projects, languages)
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 import chr from "chroma-js";
 import { format } from "date-fns";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { LsBulb, LsCheck, LsEllipsis, LsMinus } from "../../assets/icons";
 import { Button, Dropdown, Menu, Pagination, Userpic } from "../../components";
@@ -12,6 +12,7 @@ import { useConfig } from "../../providers/ConfigProvider";
 import 'antd/dist/antd.css';
 
 const { Option } = Select;
+const all = "All";
 
 export const ProjectsList = ({ projects, currentPage, totalItems, loadNextPage, pageSize, selectedLanguage }) => {
   // This could be a place to filter projects by language. 
@@ -25,13 +26,19 @@ export const ProjectsList = ({ projects, currentPage, totalItems, loadNextPage, 
   const isAdmin = config.user.isAdmin;
 
   const filteredProjects = useMemo(() => {
-    if (!selectedLanguage) {
+    console.log('selectedLanguage', selectedLanguage);
+    console.log('projects', projects);
+    if (!selectedLanguage || selectedLanguage === 'All') {
       return projects;
     }
+
+    console.log('filtered projects', projects.filter((project) => {
+      return project.title.toLowerCase().includes(selectedLanguage.toLowerCase());
+    }));
     return projects.filter((project) => {
-      return project.title.includes(`(${selectedLanguage})`);
+      return project.title.toLowerCase().includes(selectedLanguage.toLowerCase());
     })
-  })
+  }, [selectedLanguage, projects])
 
   return (
     <>
@@ -77,6 +84,9 @@ export const ProjectLanguageSelector = ({ setSelectedLanguage }) => {
       onChange={setSelectedLanguage}
       filterOption={languageLookupFunction}
     >
+      <Option key={all} value={all}>
+        All Languages
+      </Option>
       {languages.map((language) => (
         <Option key={language.code} value={language.name}>
           {language.code} - ({language.name})

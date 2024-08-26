@@ -1,135 +1,51 @@
 [
     {
-        "code": "English",
-        "name": "English"
-    },
-    {
-        "code": "Español",
-        "name": "Spanish"
-    },
-    {
-        "code": "Русский",
-        "name": "Russian"
-    },
-    {
-        "code": "中文 (简体字)",
-        "name": "Chinese - Simplified Characters"
-    },
-    {
-        "code": "中文 (繁體字)",
-        "name": "Chinese - Traditional Characters"
-    },
-    {
-        "code": "Deutsch",
-        "name": "German"
-    },
-    {
-        "code": "Français",
-        "name": "French"
-    },
-    {
-        "code": "Português - Brasileiro",
-        "name": "Portuguese - Brazilian"
-    },
-    {
-        "code": "Português - Europeu",
-        "name": "Portuguese - European"
-    },
-    {
-        "code": "ไทย",
-        "name": "Thai"
-    },
-    {
-        "code": "Català",
-        "name": "Catalan"
-    },
-    {
-        "code": "Italiano",
-        "name": "Italian"
-    },
-    {
-        "code": "Українська",
-        "name": "Ukrainian"
-    },
-    {
-        "code": "日本語",
-        "name": "Japanese"
-    },
-    {
-        "code": "Polski",
-        "name": "Polish"
-    },
-    {
-        "code": "Euskara",
-        "name": "Basque"
-    },
-    {
-        "code": "Tiếng Việt",
-        "name": "Vietnamese"
-    },
-    {
-        "code": "Suomi",
-        "name": "Finnish"
-    },
-    {
-        "code": "Magyar",
-        "name": "Hungarian"
-    },
-    {
-        "code": "العربية",
-        "name": "Arabic"
-    },
-    {
-        "code": "Nederlands",
-        "name": "Dutch"
-    },
-    {
-        "code": "Dansk",
-        "name": "Danish"
-    },
-    {
-        "code": "Türkçe",
-        "name": "Turkish"
-    },
-    {
-        "code": "한국어",
-        "name": "Korean"
-    },
-    {
-        "code": "עברית",
-        "name": "Hebrew"
-    },
-    {
-        "code": "Bahasa Indonesia",
-        "name": "Indonesian"
-    },
-    {
-        "code": "Bahasa Melayu",
-        "name": "Malay"
-    },
-    {
-        "code": "Čeština",
-        "name": "Czech"
-    },
-    {
-        "code": "हिन्दी",
-        "name": "Hindi"
-    },
-    {
         "code": "Afrikaans",
         "name": "Afrikaans"
+    },
+    {
+        "code": "Shqip",
+        "name": "Albanian"
     },
     {
         "code": "አማርኛ",
         "name": "Amharic"
     },
     {
+        "code": "العربية",
+        "name": "Arabic"
+    },
+    {
         "code": "Հայերեն",
         "name": "Armenian"
     },
     {
-        "code": "Azərbaycanca",
+        "code": "অসমীয়া",
+        "name": "Assamese"
+    },
+    {
+        "code": "Aymara",
+        "name": "Aymara"
+    },
+    {
+        "code": "Azərbaycan dili",
         "name": "Azerbaijani"
+    },
+    {
+        "code": "بلوچی",
+        "name": "Balochi"
+    },
+    {
+        "code": "Bamanankan",
+        "name": "Bambara"
+    },
+    {
+        "code": "Euskara",
+        "name": "Basque"
+    },
+    {
+        "code": "Беларуская",
+        "name": "Belarusian"
     },
     {
         "code": "Ichibemba",
@@ -138,6 +54,10 @@
     {
         "code": "বাংলা",
         "name": "Bengali"
+    },
+    {
+        "code": "भोजपुरी",
+        "name": "Bhojpuri"
     },
     {
         "code": "Bosanski",
@@ -152,28 +72,112 @@
         "name": "Burmese"
     },
     {
+        "code": "Català",
+        "name": "Catalan"
+    },
+    {
+        "code": "Cebuano",
+        "name": "Cebuano"
+    },
+    {
+        "code": "Runa Simi I",
+        "name": "Central Quechua"
+    },
+    {
+        "code": "Chinyanja",
+        "name": "Chichewa"
+    },
+    {
+        "code": "简体中文",
+        "name": "Chinese, Simplified"
+    },
+    {
+        "code": "繁體中文",
+        "name": "Chinese, Traditional"
+    },
+    {
+        "code": "চাটগাঁইয়া",
+        "name": "Chittagonian"
+    },
+    {
+        "code": "Corsu",
+        "name": "Corsican"
+    },
+    {
         "code": "Hrvatski",
         "name": "Croatian"
+    },
+    {
+        "code": "Čeština",
+        "name": "Czech"
+    },
+    {
+        "code": "Dansk",
+        "name": "Danish"
     },
     {
         "code": "دری",
         "name": "Dari - Afghanistan"
     },
     {
+        "code": "ދިވެހި",
+        "name": "Dhivehi"
+    },
+    {
+        "code": "डोगरी",
+        "name": "Dogri"
+    },
+    {
+        "code": "Nederlands",
+        "name": "Dutch"
+    },
+    {
         "code": "རྫོང་ཁ",
         "name": "Dzongkha"
+    },
+    {
+        "code": "English",
+        "name": "English"
+    },
+    {
+        "code": "Esperanto",
+        "name": "Esperanto"
     },
     {
         "code": "Eesti",
         "name": "Estonian"
     },
     {
+        "code": "Eʋegbe",
+        "name": "Ewe"
+    },
+    {
         "code": "Filipino",
         "name": "Filipino"
     },
     {
+        "code": "Suomi",
+        "name": "Finnish"
+    },
+    {
+        "code": "Français",
+        "name": "French"
+    },
+    {
+        "code": "Frysk",
+        "name": "Frisian"
+    },
+    {
+        "code": "Galego",
+        "name": "Galician"
+    },
+    {
         "code": "ქართული",
         "name": "Georgian"
+    },
+    {
+        "code": "Deutsch",
+        "name": "German"
     },
     {
         "code": "Ελληνικά",
@@ -184,6 +188,10 @@
         "name": "Guarani"
     },
     {
+        "code": "ગુજરાતી",
+        "name": "Gujarati"
+    },
+    {
         "code": "Kreyòl Ayisyen",
         "name": "Haitian Creole"
     },
@@ -192,8 +200,64 @@
         "name": "Hausa"
     },
     {
+        "code": "ʻŌlelo Hawaiʻi",
+        "name": "Hawaiian"
+    },
+    {
+        "code": "עברית",
+        "name": "Hebrew"
+    },
+    {
+        "code": "हिन्दी",
+        "name": "Hindi"
+    },
+    {
+        "code": "Hmoob",
+        "name": "Hmong"
+    },
+    {
+        "code": "Magyar",
+        "name": "Hungarian"
+    },
+    {
         "code": "Íslenska",
         "name": "Icelandic"
+    },
+    {
+        "code": "Asụsụ Igbo",
+        "name": "Igbo"
+    },
+    {
+        "code": "Ilokano",
+        "name": "Ilocano"
+    },
+    {
+        "code": "Bahasa Indonesia",
+        "name": "Indonesian"
+    },
+    {
+        "code": "Gaeilge",
+        "name": "Irish"
+    },
+    {
+        "code": "Italiano",
+        "name": "Italian"
+    },
+    {
+        "code": "日本語",
+        "name": "Japanese"
+    },
+    {
+        "code": "ꦧꦱꦗꦮ",
+        "name": "Javanese"
+    },
+    {
+        "code": "ಕನ್ನಡ",
+        "name": "Kannada"
+    },
+    {
+        "code": "Қазақ тілі",
+        "name": "Kazakh"
     },
     {
         "code": "ខ្មែរ",
@@ -208,24 +272,104 @@
         "name": "Kirundi"
     },
     {
+        "code": "कोंकणी",
+        "name": "Konkani"
+    },
+    {
+        "code": "한국어",
+        "name": "Korean"
+    },
+    {
+        "code": "Krio",
+        "name": "Krio"
+    },
+    {
+        "code": "Kurdî",
+        "name": "Kurdish, Kurmanji"
+    },
+    {
+        "code": "کوردی",
+        "name": "Kurdish, Sorani"
+    },
+    {
+        "code": "Кыргызча",
+        "name": "Kyrgyz"
+    },
+    {
+        "code": "ລາວ",
+        "name": "Lao"
+    },
+    {
+        "code": "Latina",
+        "name": "Latin"
+    },
+    {
         "code": "Latviešu",
         "name": "Latvian"
+    },
+    {
+        "code": "Lingála",
+        "name": "Lingala"
     },
     {
         "code": "Lietuvių",
         "name": "Lithuanian"
     },
     {
+        "code": "Luganda",
+        "name": "Luganda"
+    },
+    {
+        "code": "Lëtzebuergesch",
+        "name": "Luxembourgish"
+    },
+    {
         "code": "Македонски",
         "name": "Macedonian"
+    },
+    {
+        "code": "मैथिली",
+        "name": "Maithili"
     },
     {
         "code": "Malagasy",
         "name": "Malagasy"
     },
     {
+        "code": "Bahasa Melayu",
+        "name": "Malay"
+    },
+    {
+        "code": "മലയാളം",
+        "name": "Malayalam"
+    },
+    {
         "code": "Malti",
         "name": "Maltese"
+    },
+    {
+        "code": "Te Reo Māori",
+        "name": "Maori"
+    },
+    {
+        "code": "मराठी",
+        "name": "Marathi"
+    },
+    {
+        "code": "ꯃꯩꯇꯩꯂꯣꯟ",
+        "name": "Meiteilon, Manipuri"
+    },
+    {
+        "code": "Mizo ṭawng",
+        "name": "Mizo"
+    },
+    {
+        "code": "Монгол хэл",
+        "name": "Mongolian"
+    },
+    {
+        "code": "မြန်မာ",
+        "name": "Myanmar"
     },
     {
         "code": "नेपाली",
@@ -236,32 +380,84 @@
         "name": "Norwegian"
     },
     {
+        "code": "ଓଡ଼ିଆ",
+        "name": "Odia, Oriya"
+    },
+    {
+        "code": "Afaan Oromoo",
+        "name": "Oromo"
+    },
+    {
         "code": "پښتو",
         "name": "Pashto"
-    },
-    {
-        "code": "فارسی",
-        "name": "Persian"
-    },
-    {
-        "code": "Runa Simi I",
-        "name": "Central Quechua"
     },
     {
         "code": "Runa Simi II",
         "name": "Peripheral Quechua"
     },
     {
+        "code": "فارسی",
+        "name": "Persian"
+    },
+    {
+        "code": "Polski",
+        "name": "Polish"
+    },
+    {
+        "code": "Português BR",
+        "name": "Portuguese BR"
+    },
+    {
+        "code": "Português EU",
+        "name": "Portuguese EU"
+    },
+    {
+        "code": "ਪੰਜਾਬੀ",
+        "name": "Punjabi"
+    },
+    {
         "code": "Română",
         "name": "Romanian"
+    },
+    {
+        "code": "Русский",
+        "name": "Russian"
+    },
+    {
+        "code": "Gagana Sāmoa",
+        "name": "Samoan"
+    },
+    {
+        "code": "संस्कृतम्",
+        "name": "Sanskrit"
+    },
+    {
+        "code": "Sardu",
+        "name": "Sardinian"
+    },
+    {
+        "code": "Gàidhlig",
+        "name": "Scots Gaelic"
+    },
+    {
+        "code": "Sesotho sa Leboa",
+        "name": "Sepedi"
     },
     {
         "code": "Српски",
         "name": "Serbian"
     },
     {
+        "code": "Sesotho",
+        "name": "Sesotho"
+    },
+    {
         "code": "ChiShona",
         "name": "Shona"
+    },
+    {
+        "code": "سندھی",
+        "name": "Sindhi"
     },
     {
         "code": "සිංහල",
@@ -280,6 +476,14 @@
         "name": "Somali"
     },
     {
+        "code": "Español",
+        "name": "Spanish"
+    },
+    {
+        "code": "ᮘᮞ ᮞᮥᮔ᮪ᮓ",
+        "name": "Sundanese"
+    },
+    {
         "code": "Kiswahili",
         "name": "Swahili"
     },
@@ -288,152 +492,72 @@
         "name": "Swedish"
     },
     {
+        "code": "সিলেটি",
+        "name": "Sylheti"
+    },
+    {
+        "code": "Тоҷикӣ",
+        "name": "Tajik"
+    },
+    {
         "code": "தமிழ்",
         "name": "Tamil"
-    },
-    {
-        "code": "తెలుగు",
-        "name": "Telugu"
-    },
-    {
-        "code": "ትግርኛ",
-        "name": "Tigrinya"
-    },
-    {
-        "code": "Setswana",
-        "name": "Tswana"
-    },
-    {
-        "code": "Oʻzbekcha",
-        "name": "Uzbek"
-    },
-    {
-        "code": "isiXhosa",
-        "name": "Xhosa"
-    },
-    {
-        "code": "Yorùbá",
-        "name": "Yoruba"
-    },
-    {
-        "code": "isiZulu",
-        "name": "Zulu"
-    },
-    {
-        "code": "ਪੰਜਾਬੀ",
-        "name": "Punjabi"
-    },
-    {
-        "code": "ꦧꦱꦗꦮ",
-        "name": "Javanese"
-    },
-    {
-        "code": "मराठी",
-        "name": "Marathi"
-    },
-    {
-        "code": "മലയാളം",
-        "name": "Malayalam"
-    },
-    {
-        "code": "ಕನ್ನಡ",
-        "name": "Kannada"
-    },
-    {
-        "code": "ଓଡ଼ିଆ",
-        "name": "Odia"
-    },
-    {
-        "code": "मैथिली",
-        "name": "Maithili"
-    },
-    {
-        "code": "ᮘᮞ ᮞᮥᮔ᮪ᮓ",
-        "name": "Sundanese"
-    },
-    {
-        "code": "ગુજરાતી",
-        "name": "Gujarati"
-    },
-    {
-        "code": "ئۇيغۇرچە",
-        "name": "Uighur"
-    },
-    {
-        "code": "سنڌي, सिन्धी",
-        "name": "Sindhi"
-    },
-    {
-        "code": "भोजपुरी",
-        "name": "Bhojpuri"
-    },
-    {
-        "code": "Chinyanja",
-        "name": "Chichewa"
-    },
-    {
-        "code": "চাটগাঁইয়া",
-        "name": "Chittagonian"
-    },
-    {
-        "code": "Kurdî, کوردی",
-        "name": "Kurdish"
-    },
-    {
-        "code": "тоҷикӣ",
-        "name": "Tajik"
     },
     {
         "code": "татар теле",
         "name": "Tatar"
     },
     {
-        "code": "সিলেটি",
-        "name": "Sylheti"
+        "code": "తెలుగు",
+        "name": "Telugu"
     },
     {
-        "code": "অসমীয়া",
-        "name": "Assamese"
+        "code": "ไทย",
+        "name": "Thai"
     },
     {
-        "code": "Azərbaycan dili",
-        "name": "Azerbaijani"
+        "code": "ትግርኛ",
+        "name": "Tigrinya"
     },
     {
-        "code": "Беларуская",
-        "name": "Belarusian"
+        "code": "Xitsonga",
+        "name": "Tsonga"
     },
     {
-        "code": "Galego",
-        "name": "Galician"
+        "code": "Setswana",
+        "name": "Tswana"
     },
     {
-        "code": "Кыргызча",
-        "name": "Kyrgyz"
-    },
-    {
-        "code": "ລາວ",
-        "name": "Lao"
-    },
-    {
-        "code": "Монгол хэл",
-        "name": "Mongolian"
-    },
-    {
-        "code": "Sepedi",
-        "name": "Northern Sotho"
-    },
-    {
-        "code": "Sardu",
-        "name": "Sardinian"
-    },
-    {
-        "code": "Sesotho",
-        "name": "Southern Sotho"
+        "code": "Türkçe",
+        "name": "Turkish"
     },
     {
         "code": "Türkmençe",
         "name": "Turkmen"
+    },
+    {
+        "code": "Twi",
+        "name": "Twi"
+    },
+    {
+        "code": "Українська",
+        "name": "Ukrainian"
+    },
+    {
+        "code": "اردو",
+        "name": "Urdu"
+    },
+    {
+        "code": "ئۇيغۇرچە",
+        "name": "Uyghur"
+    },
+    {
+        "code": "Oʻzbek",
+        "name": "Uzbek"
+    },
+    {
+        "code": "Tiếng Việt",
+        "name": "Vietnamese"
     },
     {
         "code": "Cymraeg",
@@ -444,35 +568,19 @@
         "name": "Wolof"
     },
     {
-        "code": "اردو",
-        "name": "Urdu"
+        "code": "isiXhosa",
+        "name": "Xhosa"
     },
     {
-        "code": "Igbo",
-        "name": "Igbo"
+        "code": "ייִדיש",
+        "name": "Yiddish"
     },
     {
-        "code": "Қазақ тілі",
-        "name": "Kazakh"
+        "code": "Yorùbá",
+        "name": "Yoruba"
     },
     {
-        "code": "بلوچی",
-        "name": "Balochi"
-    },
-    {
-        "code": "Hmoob",
-        "name": "Hmong"
-    },
-    {
-        "code": "Twi",
-        "name": "Ghana"
-    },
-    {
-        "code": "Lingála",
-        "name": "Lingala"
-    },
-    {
-        "code": "te reo Māori",
-        "name": "Maori"
+        "code": "isiZulu",
+        "name": "Zulu"
     }
 ]
