@@ -12,6 +12,8 @@ export const API_CONFIG = {
 
     // Project
     projects: "/projects",
+    // new endpoint for: projects/filter-by-language?language=${language}
+    projectsFiltered: "/projects/filter-by-language",
     project: "/projects/:pk",
     updateProject: "PATCH:/projects/:pk",
     createProject: "POST:/projects",

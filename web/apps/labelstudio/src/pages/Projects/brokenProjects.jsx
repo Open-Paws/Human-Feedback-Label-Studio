@@ -19,6 +19,7 @@ import { EmptyProjectsList, ProjectsList, ProjectLanguageSelector } from "./Proj
 
 const getCurrentPage = () => {
   const pageNumberFromURL = new URLSearchParams(location.search).get("page");
+
   return pageNumberFromURL ? Number.parseInt(pageNumberFromURL) : 1;
 };
 
@@ -60,10 +61,9 @@ export const ProjectsPage = () => {
   const fetchProjects = async (page = currentPage, pageSize = defaultPageSize) => {
     setNetworkState("loading");
     abortController.renew(); // Cancel any in flight requests
-
     const requestParams = { page, page_size: pageSize };
 
-    if (isFF(FF_DEV_2575)) {
+    
       requestParams.include = [
         "id",
         "title",
@@ -73,37 +73,42 @@ export const ProjectsPage = () => {
         "is_published",
         "assignment_settings",
       ].join(",");
-    }
+    
 
-    let data 
-    if (selectedLanguage === 'All') {
-      data = await api.callApi("projects", {
-        params: requestParams,
-        ...(isFF(FF_DEV_2575)
-          ? {
-            signal: abortController.controller.current.signal,
-            errorFilter: (e) => e.error.includes("aborted"),
-          }
-          : null),
-      });
+    const fetchAllProjects = async () => {
+      let allProjects = [];
+      let page = 1;
+    
+      while (true) {
+        const response = await fetch(`/api/projects?page=${page}&pageSize=${pageSize}&include=${requestParams.include}`);
+        const data = await response.json();
+        allProjects = allProjects.concat(data.results);
+    
+        if (!data.next) {
+          break;
+        }
+        page += 1;
+      }
+    
+      return allProjects;
+    };
+
+    const fetchProjectsByLanguage = async (language) => {
+      let page = 1;
+      
+      const response = await fetch(`/api/projects/filter-by-language?language=${language}&page=${page}&pageSize=${pageSize}&include=${requestParams.include}`);
+      const data = await response.json();
+      return data.results;
+    };
+
+    let data;
+    if (selectedLanguage === "All") {
+      data = await fetchAllProjects();
     } else {
-      requestParams.language = selectedLanguage;
-      data = await api.callApi("projectsFiltered", {
-        params: requestParams,
-        ...(isFF(FF_DEV_2575)
-          ? {
-            signal: abortController.controller.current.signal,
-            errorFilter: (e) => e.error.includes("aborted"),
-          }
-          : null),
-      });
-    }
+      data = await fetchProjectsByLanguage(selectedLanguage);
+    } 
 
-    setTotalItems(data?.count ?? 1);
-    setProjectsList(data.results ?? []);
-    setNetworkState("loaded");
-
-    if (isFF(FF_DEV_2575) && data?.length) {
+    if (data?.length) {
       const additionalData = await api.callApi("projects", {
         params: {
           ids: data?.map(({ id }) => id).join(","),
@@ -125,18 +130,59 @@ export const ProjectsPage = () => {
       });
 
       if (additionalData?.results?.length) {
-        setProjectsList((prev) =>
-          additionalData.results.map((project) => {
-            const prevProject = prev.find(({ id }) => id === project.id);
-
-            return {
-              ...prevProject,
-              ...project,
-            };
-          }),
-        );
+        const mergedData = data.map((project) => {
+          const additionalProject = additionalData.results.find(({ id }) => id === project.id);
+          return {
+            ...project,
+            ...additionalProject,
+          };
+        });
+        setProjectsList(mergedData);
+      } else {
+        setProjectsList(data);
       }
     }
+
+    console.log('data ',data);
+
+    setTotalItems(data?.count ?? 1);
+    // setProjectsList(data ?? []);
+    setNetworkState("loaded");
+
+    // if (isFF(FF_DEV_2575) && data?.results?.length) {
+    //   const additionalData = await api.callApi("projects", {
+    //     params: {
+    //       ids: data?.results?.map(({ id }) => id).join(","),
+    //       include: [
+    //         "id",
+    //         "description",
+    //         "num_tasks_with_annotations",
+    //         "task_number",
+    //         "skipped_annotations_number",
+    //         "total_annotations_number",
+    //         "total_predictions_number",
+    //         "ground_truth_number",
+    //         "finished_task_number",
+    //       ].join(","),
+    //       page_size: pageSize,
+    //     },
+    //     signal: abortController.controller.current.signal,
+    //     errorFilter: (e) => e.error.includes("aborted"),
+    //   });
+
+    //   if (additionalData?.results?.length) {
+    //     setProjectsList((prev) =>
+    //       additionalData.results.map((project) => {
+    //         const prevProject = prev.find(({ id }) => id === project.id);
+
+    //         return {
+    //           ...prevProject,
+    //           ...project,
+    //         };
+    //       }),
+    //     );
+    //   }
+    // }
   };
 
   const loadNextPage = async (page, pageSize) => {
@@ -145,7 +191,9 @@ export const ProjectsPage = () => {
   };
 
   React.useEffect(() => {
-    if (selectedLanguage) fetchProjects();
+    if (selectedLanguage) {
+      fetchProjects();
+    }
   }, [selectedLanguage]);
 
   React.useEffect(() => {
@@ -158,28 +206,24 @@ export const ProjectsPage = () => {
     <Block name="projects-page">
       {!selectedLanguage ? (<ProjectLanguageSelector setSelectedLanguage={setSelectedLanguage} />
        ) : (
-      <Oneof value={networkState}>
-        <Elem name="loading" case="loading">
-          <Spinner size={64} />
-        </Elem>
-        <Elem name="content" case="loaded">
-          {!selectedLanguage ? (<ProjectLanguageSelector setSelectedLanguage={setSelectedLanguage} />)
-            : projectsList.length ?
-              (
-                <ProjectsList
-                  projects={projectsList}
-                  currentPage={currentPage}
-                  totalItems={totalItems}
-                  loadNextPage={loadNextPage}
-                  pageSize={defaultPageSize}
-                  selectedLanguage={selectedLanguage}
-                />
-              ) : (
-                <EmptyProjectsList openModal={openModal} />
-              )}
-          {modal && <CreateProject onClose={closeModal} />}
-        </Elem>
-      </Oneof>
+        <Oneof value={networkState}>
+          <Elem name="loading" case="loading">
+            <Spinner size={64} />
+          </Elem>
+          <Elem name="content" case="loaded">
+            
+                  <ProjectsList
+                    projects={projectsList}
+                    currentPage={currentPage}
+                    totalItems={totalItems}
+                    loadNextPage={loadNextPage}
+                    pageSize={defaultPageSize}
+                    selectedLanguage={selectedLanguage}
+                  />
+                
+            {modal && <CreateProject onClose={closeModal} />}
+          </Elem>
+        </Oneof>
       )}
     </Block>
   );

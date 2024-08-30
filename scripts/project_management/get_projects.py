@@ -2,6 +2,16 @@ import requests
 import json
 import os
 
+project_type_keys = {
+    "Response Feedback": '<TextArea name=\"explanation\" toName=\"chat\"',
+    "Response Generation": '<TextArea name=\"explanation\" toName=\"chat\"',
+    "Text Feedback": '<TextArea name=\"explanation\" toName=\"text\"',
+    "Image Feedback": '<TextArea name=\"explanation\" toName=\"image\"',
+    "HTML Feedback": '<TextArea name=\"explanation\" toName=\"html_content\"'
+}
+    # Add other project types and their unique keys here
+
+
 # Load the languages from the JSON file
 def load_languages(json_file_path):
     with open(json_file_path, 'r') as file:
@@ -48,12 +58,10 @@ def compare_projects_with_languages(projects, languages):
                 language_projects[language].append(project['title'])  # Use original project title
                 if language.lower() == 'english':
                     english_projects.append(project)
-                elif language.lower() == 'spanish':
-                    spanish_projects.append(project)
     
     for language, projects in language_projects.items():
-        if len(projects) != 4:
-            print(f"Language '{language}' has {len(projects)} projects. Expected 4.")
+        if len(projects) != 5:
+            print(f"Language '{language}' has {len(projects)} projects. Expected 5.")
         else:
             print(f"Language '{language}' has the correct number of projects.")
     

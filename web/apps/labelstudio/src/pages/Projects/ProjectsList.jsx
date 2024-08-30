@@ -25,29 +25,14 @@ export const ProjectsList = ({ projects, currentPage, totalItems, loadNextPage, 
   const config = useConfig();
   const isAdmin = config.user.isAdmin;
 
-  const filteredProjects = useMemo(() => {
-    console.log('selectedLanguage', selectedLanguage);
-    console.log('projects', projects);
-    if (!selectedLanguage || selectedLanguage === 'All') {
-      return projects;
-    }
-
-    console.log('filtered projects', projects.filter((project) => {
-      return project.title.toLowerCase().includes(selectedLanguage.toLowerCase());
-    }));
-    return projects.filter((project) => {
-      return project.title.toLowerCase().includes(selectedLanguage.toLowerCase());
-    })
-  }, [selectedLanguage, projects])
-
   return (
     <>
       <Elem name="list">
-        {filteredProjects.map((project) => (
+        {projects.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </Elem>
-      {/* <Elem name="pages">
+      <Elem name="pages">
         <Pagination
           name="projects-list"
           label="Projects"
@@ -58,7 +43,7 @@ export const ProjectsList = ({ projects, currentPage, totalItems, loadNextPage, 
           pageSizeOptions={[10, 30, 50, 100]}
           onPageLoad={(page, pageSize) => loadNextPage(page, pageSize)}
         />
-      </Elem> */}
+      </Elem>
     </>
   );
 };
@@ -102,7 +87,7 @@ export const EmptyProjectsList = ({ openModal }) => {
     <Block name="empty-projects-page">
       <Elem name="heidi" tag="img" src={absoluteURL("/static/images/opossum_looking.png")} />
       <Elem name="header" tag="h1">
-        Heidi doesn’t see any projects here FOO
+        Heidi doesn’t see any projects here
       </Elem>
       <p>Create one and start labeling your data</p>
       <Elem name="action" tag={Button} onClick={openModal} look="primary">
