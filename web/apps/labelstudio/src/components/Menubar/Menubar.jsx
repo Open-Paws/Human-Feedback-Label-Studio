@@ -1,299 +1,241 @@
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { generatePath, useHistory } from "react-router";
-import { NavLink } from "react-router-dom";
-import { Spinner } from "../../components";
-import { Button } from "../../components/Button/Button";
-import { modal } from "../../components/Modal/Modal";
-import { Space } from "../../components/Space/Space";
-import { useAPI } from "../../providers/ApiProvider";
-import { useProject } from "../../providers/ProjectProvider";
-import { useContextProps, useFixedLocation, useParams } from "../../providers/RoutesProvider";
-import { addAction, addCrumb, deleteAction, deleteCrumb } from "../../services/breadrumbs";
-import { Block, Elem } from "../../utils/bem";
-import { isDefined } from "../../utils/helpers";
-import { ImportModal } from "../CreateProject/Import/ImportModal";
-import { ExportPage } from "../ExportPage/ExportPage";
-import { APIConfig } from "./api-config";
-import { ToastContext } from "../../components/Toast/Toast";
-import { FF_OPTIC_2, isFF } from "../../utils/feature-flags";
+import { createContext, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { StaticContent } from "../../app/StaticContent/StaticContent";
+import {
+  IconBook,
+  IconFolder,
+  IconModel,
+  IconPersonInCircle,
+  IconPin,
+  IconTerminal,
+  LsDoor,
+  LsGitHub,
+  LsSettings,
+  LsSlack,
+} from "../../assets/icons";
+import { useConfig } from "../../providers/ConfigProvider";
+import { useContextComponent, useFixedLocation } from "../../providers/RoutesProvider";
+import { cn } from "../../utils/bem";
+import { absoluteURL, isDefined } from "../../utils/helpers";
+import { Breadcrumbs } from "../Breadcrumbs/Breadcrumbs";
+import { Dropdown } from "../Dropdown/Dropdown";
+import { Hamburger } from "../Hamburger/Hamburger";
+import { Menu } from "../Menu/Menu";
+import { Userpic } from "../Userpic/Userpic";
+import { VersionNotifier, VersionProvider } from "../VersionNotifier/VersionNotifier";
+import "./Menubar.scss";
+import "./MenuContent.scss";
+import "./MenuSidebar.scss";
+import { ModelsPage } from "../../pages/Organization/Models/ModelsPage";
+import { FF_DIA_835, isFF } from "../../utils/feature-flags";
 
-import "./DataManager.scss";
+export const MenubarContext = createContext();
 
-const loadDependencies = () => [import("@humansignal/datamanager"), import("@humansignal/editor")];
+const LeftContextMenu = ({ className }) => (
+  <StaticContent id="context-menu-left" className={className}>
+    {(template) => <Breadcrumbs fromTemplate={template} />}
+  </StaticContent>
+);
 
-const initializeDataManager = async (root, props, params) => {
-  if (!window.LabelStudio) throw Error("Label Studio Frontend doesn't exist on the page");
-  if (!root && root.dataset.dmInitialized) return;
+const RightContextMenu = ({ className, ...props }) => {
+  const { ContextComponent, contextProps } = useContextComponent();
 
-  root.dataset.dmInitialized = true;
-
-  const { ...settings } = root.dataset;
-
-  const dmConfig = {
-    root,
-    projectId: params.id,
-    apiGateway: `${window.APP_SETTINGS.hostname}/api/dm`,
-    apiVersion: 2,
-    project: params.project,
-    polling: !window.APP_SETTINGS,
-    showPreviews: false,
-    apiEndpoints: APIConfig.endpoints,
-    interfaces: {
-      import: true,
-      export: true,
-      backButton: false,
-      labelingHeader: false,
-      autoAnnotation: params.autoAnnotation,
-    },
-    labelStudio: {
-      keymap: window.APP_SETTINGS.editor_keymap,
-    },
-    ...props,
-    ...settings,
-  };
-
-  return new window.DataManager(dmConfig);
-};
-
-const buildLink = (path, params) => {
-  return generatePath(`/projects/:id${path}`, params);
-};
-
-export const DataManagerPage = ({ ...props }) => {
-  const dependencies = useMemo(loadDependencies);
-  const toast = useContext(ToastContext);
-  const root = useRef();
-  const params = useParams();
-  const history = useHistory();
-  const api = useAPI();
-  const { project } = useProject();
-  const setContextProps = useContextProps();
-  const [crashed, setCrashed] = useState(false);
-  const [loading, setLoading] = useState(!window.DataManager || !window.LabelStudio);
-  const dataManagerRef = useRef();
-  const projectId = project?.id;
-
-  const init = useCallback(async () => {
-    if (!window.LabelStudio) return;
-    if (!window.DataManager) return;
-    if (!root.current) return;
-    if (!project?.id) return;
-    if (dataManagerRef.current) return;
-
-    const mlBackends = await api.callApi("mlBackends", {
-      params: { project: project.id },
-    });
-
-    const interactiveBacked = (mlBackends ?? []).find(({ is_interactive }) => is_interactive);
-
-    const dataManager = (dataManagerRef.current =
-      dataManagerRef.current ??
-      (await initializeDataManager(root.current, props, {
-        ...params,
-        project,
-        autoAnnotation: isDefined(interactiveBacked),
-      })));
-
-    Object.assign(window, { dataManager });
-
-    dataManager.on("crash", () => setCrashed());
-
-    dataManager.on("settingsClicked", () => {
-      history.push(buildLink("/settings/labeling", { id: params.id }));
-    });
-
-    dataManager.on("importClicked", () => {
-      history.push(buildLink("/data/import", { id: params.id }));
-    });
-
-    dataManager.on("exportClicked", () => {
-      history.push(buildLink("/data/export", { id: params.id }));
-    });
-
-    dataManager.on("error", (response) => {
-      api.handleError(response);
-    });
-
-    dataManager.on("toast", ({ message, type }) => {
-      toast.show({ message, type });
-    });
-
-    dataManager.on("navigate", (route) => {
-      const target = route.replace(/^projects/, "");
-
-      if (target) history.push(buildLink(target, { id: params.id }));
-      else history.push("/projects/");
-    });
-
-    if (interactiveBacked) {
-      dataManager.on("lsf:regionFinishedDrawing", (reg, group) => {
-        const { lsf, task, currentAnnotation: annotation } = dataManager.lsf;
-        const ids = group.map((r) => r.cleanId);
-        const result = annotation.serializeAnnotation().filter((res) => ids.includes(res.id));
-
-        const suggestionsRequest = api.callApi("mlInteractive", {
-          params: { pk: interactiveBacked.id },
-          body: {
-            task: task.id,
-            context: { result },
-          },
-        });
-
-        // we'll check that we are processing the same task
-        const wrappedRequest = new Promise(async (resolve, reject) => {
-          const response = await suggestionsRequest;
-
-          // right now task might be an old task,
-          // so in order to get a current one we need to get it from lsf
-          if (task.id === dataManager.lsf.task.id) {
-            resolve(response);
-          } else {
-            reject();
-          }
-        });
-
-        lsf.loadSuggestions(wrappedRequest, (response) => {
-          if (response.data) {
-            return response.data.result;
-          }
-
-          return null;
-        });
-      });
-    }
-
-    setContextProps({ dmRef: dataManager });
-  }, [projectId]);
-
-  const destroyDM = useCallback(() => {
-    if (dataManagerRef.current) {
-      dataManagerRef.current.destroy();
-      dataManagerRef.current = null;
-    }
-  }, [dataManagerRef]);
-
-  useEffect(() => {
-    Promise.all(dependencies)
-      .then(() => setLoading(false))
-      .then(init);
-
-    return () => destroyDM();
-  }, [root, init]);
-
-  if (loading) {
-    return (
-      <div
-        style={{
-          flex: 1,
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Spinner size={64} />
-      </div>
-    );
-  }
-
-  return crashed ? (
-    <Block name="crash">
-      <Elem name="info">Project was deleted or not yet created</Elem>
-
-      <Button to="/projects">Back to projects</Button>
-    </Block>
+  return ContextComponent ? (
+    <div className={className}>
+      <ContextComponent {...props} {...(contextProps ?? {})} />
+    </div>
   ) : (
-    <Block ref={root} name="datamanager" />
+    <StaticContent id="context-menu-right" className={className} />
   );
 };
 
-DataManagerPage.path = "/data";
-DataManagerPage.pages = {
-  ExportPage,
-  ImportModal,
-};
-DataManagerPage.context = ({ dmRef }) => {
+export const Menubar = ({ enabled, defaultOpened, defaultPinned, children, onSidebarToggle, onSidebarPin }) => {
+  const menuDropdownRef = useRef();
+  const useMenuRef = useRef();
   const location = useFixedLocation();
-  const { project } = useProject();
-  const [mode, setMode] = useState(dmRef?.mode ?? "explorer");
 
-  const links = {
-    "/settings": "Settings",
-  };
+  const config = useConfig();
+  const [sidebarOpened, setSidebarOpened] = useState(defaultOpened ?? false);
+  const [sidebarPinned, setSidebarPinned] = useState(defaultPinned ?? false);
+  const [PageContext, setPageContext] = useState({
+    Component: null,
+    props: {},
+  });
 
-  const updateCrumbs = (currentMode) => {
-    const isExplorer = currentMode === "explorer";
-    const dmPath = location.pathname.replace(DataManagerPage.path, "");
+  const menubarClass = cn("menu-header");
+  const menubarContext = menubarClass.elem("context");
+  const sidebarClass = cn("sidebar");
+  const contentClass = cn("content-wrapper");
+  const contextItem = menubarClass.elem("context-item");
+  const showNewsletterDot = !isDefined(config.user.allow_newsletters);
 
-    if (isExplorer) {
-      deleteAction(dmPath);
-      deleteCrumb("dm-crumb");
-    } else {
-      if (!isFF(FF_OPTIC_2)) {
-        addAction(dmPath, (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          dmRef?.store?.closeLabeling?.();
+  const sidebarPin = useCallback(
+    (e) => {
+      e.preventDefault();
+
+      const newState = !sidebarPinned;
+
+      setSidebarPinned(newState);
+      onSidebarPin?.(newState);
+    },
+    [sidebarPinned],
+  );
+
+  const sidebarToggle = useCallback(
+    (visible) => {
+      const newState = visible;
+
+      setSidebarOpened(newState);
+      onSidebarToggle?.(newState);
+    },
+    [sidebarOpened],
+  );
+
+  const providerValue = useMemo(
+    () => ({
+      PageContext,
+
+      setContext(ctx) {
+        setTimeout(() => {
+          setPageContext({
+            ...PageContext,
+            Component: ctx,
+          });
         });
-      }
-      addCrumb({
-        key: "dm-crumb",
-        title: "Labeling",
-      });
-    }
-  };
+      },
 
-  const showLabelingInstruction = (currentMode) => {
-    const isLabelStream = currentMode === "labelstream";
-    const { expert_instruction, show_instruction } = project;
+      setProps(props) {
+        setTimeout(() => {
+          setPageContext({
+            ...PageContext,
+            props,
+          });
+        });
+      },
 
-    if (isLabelStream && show_instruction && expert_instruction) {
-      modal({
-        title: "Labeling Instructions",
-        body: <div dangerouslySetInnerHTML={{ __html: expert_instruction }} />,
-        style: { width: 680 },
-      });
-    }
-  };
-
-  const onDMModeChanged = (currentMode) => {
-    setMode(currentMode);
-    updateCrumbs(currentMode);
-    showLabelingInstruction(currentMode);
-  };
+      contextIsSet(ctx) {
+        return PageContext.Component === ctx;
+      },
+    }),
+    [PageContext],
+  );
 
   useEffect(() => {
-    if (dmRef) {
-      dmRef.on("modeChanged", onDMModeChanged);
+    if (!sidebarPinned) {
+      menuDropdownRef?.current?.close();
     }
+    useMenuRef?.current?.close();
+  }, [location]);
 
-    return () => {
-      dmRef?.off?.("modeChanged", onDMModeChanged);
-    };
-  }, [dmRef, project]);
+  return (
+    <div className={contentClass}>
+      {enabled && (
+        <div className={menubarClass}>
+          <Dropdown.Trigger dropdown={menuDropdownRef} closeOnClickOutside={!sidebarPinned}>
+            <div className={`${menubarClass.elem("trigger")} main-menu-trigger`}>
+              <img src={absoluteURL("/static/icons/logo.svg")} alt="Label Studio Logo" height="22" />
+              <Hamburger opened={sidebarOpened} />
+            </div>
+          </Dropdown.Trigger>
 
-  return project && project.id ? (
-    <Space size="small">
-      {project.expert_instruction && mode !== "explorer" && (
-        <Button
-          size="compact"
-          onClick={() => {
-            modal({
-              title: "Instructions",
-              body: () => <div dangerouslySetInnerHTML={{ __html: project.expert_instruction }} />,
-            });
-          }}
-        >
-          Instructions
-        </Button>
+          <div className={menubarContext}>
+            <LeftContextMenu className={contextItem.mod({ left: true })} />
+
+            <RightContextMenu className={contextItem.mod({ right: true })} />
+          </div>
+
+          <Dropdown.Trigger
+            ref={useMenuRef}
+            align="right"
+            content={
+              <Menu>
+                <Menu.Item icon={<LsSettings />} label="Account &amp; Settings" href="/user/account" data-external />
+                {/* <Menu.Item label="Dark Mode"/> */}
+                <Menu.Item icon={<LsDoor />} label="Log Out" href={absoluteURL("/logout")} data-external />
+                {showNewsletterDot && (
+                  <>
+                    <Menu.Divider />
+                    <Menu.Item className={cn("newsletter-menu-item")} href="/user/account" data-external>
+                      <span>Please check new notification settings in the Account & Settings page</span>
+                      <span className={cn("newsletter-menu-badge")} />
+                    </Menu.Item>
+                  </>
+                )}
+              </Menu>
+            }
+          >
+            <div title={config.user.email} className={menubarClass.elem("user")}>
+              <Userpic user={config.user} />
+              {showNewsletterDot && <div className={menubarClass.elem("userpic-badge")} />}
+            </div>
+          </Dropdown.Trigger>
+        </div>
       )}
 
-      {Object.entries(links).map(([path, label]) => (
-        <Button key={path} tag={NavLink} size="compact" to={`/projects/${project.id}${path}`} data-external>
-          {label}
-        </Button>
-      ))}
-    </Space>
-  ) : null;
+      <VersionProvider>
+        <div className={contentClass.elem("body")}>
+          {enabled && (
+            <Dropdown
+              ref={menuDropdownRef}
+              onToggle={sidebarToggle}
+              onVisibilityChanged={() => window.dispatchEvent(new Event("resize"))}
+              visible={sidebarOpened}
+              className={[sidebarClass, sidebarClass.mod({ floating: !sidebarPinned })].join(" ")}
+              style={{ width: 240 }}
+            >
+              <Menu>
+                <Menu.Item label="Projects" to="/projects" icon={<IconFolder />} data-external exact />
+                <Menu.Item label="Organization" to="/organization" icon={<IconPersonInCircle />} data-external exact />
+                {isFF(FF_DIA_835) && <Menu.Item label="Models" to={ModelsPage.path} icon={<IconModel />} exact />}
+
+                <Menu.Spacer />
+
+                <VersionNotifier showNewVersion />
+
+                <Menu.Item
+                  label="API"
+                  href="https://api.labelstud.io/api-reference/introduction/getting-started"
+                  icon={<IconTerminal />}
+                  target="_blank"
+                />
+                <Menu.Item label="Docs" href="https://labelstud.io/guide" icon={<IconBook />} target="_blank" />
+                <Menu.Item
+                  label="GitHub"
+                  href="https://github.com/HumanSignal/label-studio"
+                  icon={<LsGitHub />}
+                  target="_blank"
+                  rel="noreferrer"
+                />
+                <Menu.Item
+                  label="Slack Community"
+                  href="https://slack.labelstud.io/?source=product-menu"
+                  icon={<LsSlack />}
+                  target="_blank"
+                  rel="noreferrer"
+                />
+
+                <VersionNotifier showCurrentVersion />
+
+                <Menu.Divider />
+
+                <Menu.Item
+                  icon={<IconPin />}
+                  className={sidebarClass.elem("pin")}
+                  onClick={sidebarPin}
+                  active={sidebarPinned}
+                >
+                  {sidebarPinned ? "Unpin menu" : "Pin menu"}
+                </Menu.Item>
+              </Menu>
+            </Dropdown>
+          )}
+
+          <MenubarContext.Provider value={providerValue}>
+            <div className={contentClass.elem("content").mod({ withSidebar: sidebarPinned && sidebarOpened })}>
+              {children}
+            </div>
+          </MenubarContext.Provider>
+        </div>
+      </VersionProvider>
+    </div>
+  );
 };
