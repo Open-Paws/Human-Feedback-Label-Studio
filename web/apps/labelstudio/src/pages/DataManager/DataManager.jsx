@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { generatePath, useHistory } from "react-router";
 import { NavLink } from "react-router-dom";
 import { Spinner } from "../../components";
@@ -6,10 +6,8 @@ import { Button } from "../../components/Button/Button";
 import { modal } from "../../components/Modal/Modal";
 import { Space } from "../../components/Space/Space";
 import { useAPI } from "../../providers/ApiProvider";
-import { useLibrary } from "../../providers/LibraryProvider";
 import { useProject } from "../../providers/ProjectProvider";
 import { useContextProps, useFixedLocation, useParams } from "../../providers/RoutesProvider";
-import { useConfig } from "../../providers/ConfigProvider";
 import { addAction, addCrumb, deleteAction, deleteCrumb } from "../../services/breadrumbs";
 import { Block, Elem } from "../../utils/bem";
 import { isDefined } from "../../utils/helpers";
@@ -19,25 +17,13 @@ import { APIConfig } from "./api-config";
 import { ToastContext } from "../../components/Toast/Toast";
 import { FF_OPTIC_2, isFF } from "../../utils/feature-flags";
 
-import "./DataManager.styl";
+import "./DataManager.scss";
+
+const loadDependencies = () => [import("@humansignal/datamanager"), import("@humansignal/editor")];
 
 const initializeDataManager = async (root, props, params) => {
   if (!window.LabelStudio) throw Error("Label Studio Frontend doesn't exist on the page");
   if (!root && root.dataset.dmInitialized) return;
-
-  const isAdmin = params.isAdmin
-  console.log('isAdmin', isAdmin)
-  let reducedConfig = {...APIConfig}
-
-  if (!isAdmin) {
-    // remove admin only endpoints
-    const { updateAnnotation, deleteAnnotation, ...restEndpoints } = APIConfig.endpoints
-    reducedConfig = {
-      ...APIConfig,
-      endpoints: restEndpoints
-    }
-    console.log('reducedConfig for non-admin', reducedConfig)
-  }
 
   root.dataset.dmInitialized = true;
 
@@ -51,7 +37,7 @@ const initializeDataManager = async (root, props, params) => {
     project: params.project,
     polling: !window.APP_SETTINGS,
     showPreviews: false,
-    apiEndpoints: reducedConfig.endpoints,
+    apiEndpoints: APIConfig.endpoints,
     interfaces: {
       import: true,
       export: true,
@@ -65,7 +51,6 @@ const initializeDataManager = async (root, props, params) => {
     ...props,
     ...settings,
   };
-  console.log('dmConfig', dmConfig)
 
   return new window.DataManager(dmConfig);
 };
@@ -75,25 +60,22 @@ const buildLink = (path, params) => {
 };
 
 export const DataManagerPage = ({ ...props }) => {
+  const dependencies = useMemo(loadDependencies);
   const toast = useContext(ToastContext);
   const root = useRef();
   const params = useParams();
   const history = useHistory();
   const api = useAPI();
   const { project } = useProject();
-  const LabelStudio = useLibrary("lsf");
-  const DataManager = useLibrary("dm");
   const setContextProps = useContextProps();
   const [crashed, setCrashed] = useState(false);
+  const [loading, setLoading] = useState(!window.DataManager || !window.LabelStudio);
   const dataManagerRef = useRef();
   const projectId = project?.id;
-  const config = useConfig();
-
-  const isAdmin = config.user.email.endsWith('@veg3.ai')
 
   const init = useCallback(async () => {
-    if (!LabelStudio) return;
-    if (!DataManager) return;
+    if (!window.LabelStudio) return;
+    if (!window.DataManager) return;
     if (!root.current) return;
     if (!project?.id) return;
     if (dataManagerRef.current) return;
@@ -110,7 +92,6 @@ export const DataManagerPage = ({ ...props }) => {
         ...params,
         project,
         autoAnnotation: isDefined(interactiveBacked),
-        isAdmin: isAdmin,
       })));
 
     Object.assign(window, { dataManager });
@@ -182,7 +163,7 @@ export const DataManagerPage = ({ ...props }) => {
     }
 
     setContextProps({ dmRef: dataManager });
-  }, [LabelStudio, DataManager, projectId]);
+  }, [projectId]);
 
   const destroyDM = useCallback(() => {
     if (dataManagerRef.current) {
@@ -192,12 +173,14 @@ export const DataManagerPage = ({ ...props }) => {
   }, [dataManagerRef]);
 
   useEffect(() => {
-    init();
+    Promise.all(dependencies)
+      .then(() => setLoading(false))
+      .then(init);
 
     return () => destroyDM();
   }, [root, init]);
 
-  if (!DataManager || !LabelStudio) {
+  if (loading) {
     return (
       <div
         style={{
