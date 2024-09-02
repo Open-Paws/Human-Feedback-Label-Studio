@@ -1,5 +1,4 @@
 import { createContext, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "antd"
 import { StaticContent } from "../../app/StaticContent/StaticContent";
 import {
   IconBook,
@@ -8,14 +7,12 @@ import {
   IconPersonInCircle,
   IconPin,
   IconTerminal,
-  LsChevronLeft,
   LsDoor,
   LsGitHub,
   LsSettings,
   LsSlack,
 } from "../../assets/icons";
 import { useConfig } from "../../providers/ConfigProvider";
-import { NavLink } from "react-router-dom";
 import { useContextComponent, useFixedLocation } from "../../providers/RoutesProvider";
 import { cn } from "../../utils/bem";
 import { absoluteURL, isDefined } from "../../utils/helpers";
@@ -25,69 +22,26 @@ import { Hamburger } from "../Hamburger/Hamburger";
 import { Menu } from "../Menu/Menu";
 import { Userpic } from "../Userpic/Userpic";
 import { VersionNotifier, VersionProvider } from "../VersionNotifier/VersionNotifier";
-import "./Menubar.styl";
-import "./MenuContent.styl";
-import "./MenuSidebar.styl";
+import "./Menubar.scss";
+import "./MenuContent.scss";
+import "./MenuSidebar.scss";
 import { ModelsPage } from "../../pages/Organization/Models/ModelsPage";
 import { FF_DIA_835, isFF } from "../../utils/feature-flags";
 
 export const MenubarContext = createContext();
 
-const navigateBack = () => {
-  const target = route.replace(/^projects/, "");
-
-  if (target) history.push(buildLink(target, { id: params.id }));
-  else history.push("/projects/");
-}
-
-const LeftContextMenu = ({ className, isAdmin }) => (
+const LeftContextMenu = ({ className }) => (
   <StaticContent id="context-menu-left" className={className}>
-    {isAdmin ? (template) => <Breadcrumbs fromTemplate={template} />
-    // Add a Back button here that redirects to /projects
-  : <NavLink to={'/projects'}>
-      <LsChevronLeft/>
-    </NavLink>
-  }
+    {(template) => <Breadcrumbs fromTemplate={template} />}
   </StaticContent>
 );
 
-
-// language reset
-const ChooseLanguage = () => {
-  const config = useConfig();
-  const [languageCode, setLanguageCode] = useState(null);
-
-  useEffect(() => {
-    const configLanguage = config.language
-    const storedLanguage = localStorage.getItem('selectedLanguage');
-    
-    setLanguageCode(configLanguage || storedLanguage);
-  }, []);
-
-  useEffect(() => {
-    // Assuming config has a languageCode property
-    if (config.languageLocalCode) {
-      setLanguageCode(config.languageLocalCode);
-    }
-  }, [config.languageLocalCode]);
-
-  const resetLanguage = () => {
-    localStorage.removeItem("selectedLanguage");
-    config.update({ language: null, languageLocalCode: null });
-    setLanguageCode(null);
-    window.location.href = '/projects';
-  };
-
-  return (<Button onClick={resetLanguage}>🌎 Language: {languageCode}</Button>);
-};
-
-const RightContextMenu = ({ className, isAdmin, ...props }) => {
+const RightContextMenu = ({ className, ...props }) => {
   const { ContextComponent, contextProps } = useContextComponent();
 
   return ContextComponent ? (
     <div className={className}>
-      <ChooseLanguage />
-      {isAdmin && <ContextComponent {...props} {...(contextProps ?? {})} />}
+      <ContextComponent {...props} {...(contextProps ?? {})} />
     </div>
   ) : (
     <StaticContent id="context-menu-right" className={className} />
@@ -113,8 +67,6 @@ export const Menubar = ({ enabled, defaultOpened, defaultPinned, children, onSid
   const contentClass = cn("content-wrapper");
   const contextItem = menubarClass.elem("context-item");
   const showNewsletterDot = !isDefined(config.user.allow_newsletters);
-
-  const isAdmin = config.user.email.endsWith('@veg3.ai')
 
   const sidebarPin = useCallback(
     (e) => {
@@ -178,18 +130,17 @@ export const Menubar = ({ enabled, defaultOpened, defaultPinned, children, onSid
     <div className={contentClass}>
       {enabled && (
         <div className={menubarClass}>
-          {isAdmin && (
-            <Dropdown.Trigger dropdown={menuDropdownRef} closeOnClickOutside={!sidebarPinned}>
-              <div className={`${menubarClass.elem("trigger")} main-menu-trigger`}>
-                <img src={absoluteURL("/static/icons/logo-black.svg")} alt="Label Studio Logo" height="22" />
-                <Hamburger opened={sidebarOpened} />
-              </div>
-            </Dropdown.Trigger>
-          )}
+          <Dropdown.Trigger dropdown={menuDropdownRef} closeOnClickOutside={!sidebarPinned}>
+            <div className={`${menubarClass.elem("trigger")} main-menu-trigger`}>
+              <img src={absoluteURL("/static/icons/logo.svg")} alt="Label Studio Logo" height="22" />
+              <Hamburger opened={sidebarOpened} />
+            </div>
+          </Dropdown.Trigger>
 
           <div className={menubarContext}>
-            <LeftContextMenu className={contextItem.mod({ left: true })}  isAdmin={isAdmin}/>
-            <RightContextMenu className={contextItem.mod({ right: true })} isAdmin={isAdmin} />
+            <LeftContextMenu className={contextItem.mod({ left: true })} />
+
+            <RightContextMenu className={contextItem.mod({ right: true })} />
           </div>
 
           <Dropdown.Trigger
@@ -200,6 +151,15 @@ export const Menubar = ({ enabled, defaultOpened, defaultPinned, children, onSid
                 <Menu.Item icon={<LsSettings />} label="Account &amp; Settings" href="/user/account" data-external />
                 {/* <Menu.Item label="Dark Mode"/> */}
                 <Menu.Item icon={<LsDoor />} label="Log Out" href={absoluteURL("/logout")} data-external />
+                {showNewsletterDot && (
+                  <>
+                    <Menu.Divider />
+                    <Menu.Item className={cn("newsletter-menu-item")} href="/user/account" data-external>
+                      <span>Please check new notification settings in the Account & Settings page</span>
+                      <span className={cn("newsletter-menu-badge")} />
+                    </Menu.Item>
+                  </>
+                )}
               </Menu>
             }
           >
@@ -213,7 +173,7 @@ export const Menubar = ({ enabled, defaultOpened, defaultPinned, children, onSid
 
       <VersionProvider>
         <div className={contentClass.elem("body")}>
-          {enabled && isAdmin && (
+          {enabled && (
             <Dropdown
               ref={menuDropdownRef}
               onToggle={sidebarToggle}
@@ -231,11 +191,16 @@ export const Menubar = ({ enabled, defaultOpened, defaultPinned, children, onSid
 
                 <VersionNotifier showNewVersion />
 
-                <Menu.Item label="API" href="/docs/api" icon={<IconTerminal />} target="_blank" />
+                <Menu.Item
+                  label="API"
+                  href="https://api.labelstud.io/api-reference/introduction/getting-started"
+                  icon={<IconTerminal />}
+                  target="_blank"
+                />
                 <Menu.Item label="Docs" href="https://labelstud.io/guide" icon={<IconBook />} target="_blank" />
                 <Menu.Item
                   label="GitHub"
-                  href="https://github.com/heartexlabs/label-studio"
+                  href="https://github.com/HumanSignal/label-studio"
                   icon={<LsGitHub />}
                   target="_blank"
                   rel="noreferrer"
@@ -269,7 +234,6 @@ export const Menubar = ({ enabled, defaultOpened, defaultPinned, children, onSid
               {children}
             </div>
           </MenubarContext.Provider>
-
         </div>
       </VersionProvider>
     </div>
