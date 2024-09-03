@@ -17,22 +17,12 @@ def is_veg3_admin(user):
 
 # Apply the custom rule to delete permissions
 admin_permissions = [
-    'tasks.delete',
-    'tasks.change',
-    'tasks.create',
     'annotations.delete',
     'labels.delete',
     'models.delete',
     'model_provider_connection.delete',
-    'model_provider_connection.change',
-    'predictions.any',
     'projects.delete',
-    'projects.change',
     'projects.create',
-    'organizations.delete',
-    'organizations.change',
-    'organizations.create',
-    'organizations.invite',
 ]
 
 class AllPermissions(BaseModel):
