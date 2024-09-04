@@ -101,6 +101,34 @@ class User(UserMixin, AbstractBaseUser, PermissionsMixin, UserLastActivityMixin)
     advocacy_diplomacy = models.IntegerField(default=3)
     advocacy_empiricism = models.IntegerField(default=3)
     
+    # demographic information
+    age = models.CharField(_('age'), max_length=256, blank=True)
+    gender = models.CharField(_('gender'), max_length=256, blank=True)
+    ethnicity = models.CharField(_('ethnicity'), max_length=256, blank=True)
+    # country
+    country = models.CharField(_('country'), max_length=256, blank=True)
+    # eucation level
+    education_level = models.CharField(_('education level'), max_length=256, blank=True)
+    # income level
+    income_level = models.CharField(_('income level'), max_length=256, blank=True)
+    # political affiliation
+    political_affiliation = models.CharField(_('political affiliation'), max_length=256, blank=True)
+    # religious affiliation
+    religious_affiliation = models.CharField(_('religious affiliation'), max_length=256, blank=True)
+    
+    # psychometrics scales
+    # openness
+    openness = models.IntegerField(default=3)
+    # conscientiousness
+    conscientiousness = models.IntegerField(default=3)
+    # extraversion
+    extraversion = models.IntegerField(default=3)
+    # agreeableness
+    agreeableness = models.IntegerField(default=3)
+    # neuroticism
+    neuroticism = models.IntegerField(default=3)
+
+
     is_staff = models.BooleanField(
         _('staff status'), default=False, help_text=_('Designates whether the user can log into this admin site.')
     )

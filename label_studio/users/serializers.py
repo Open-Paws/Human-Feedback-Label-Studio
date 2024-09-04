@@ -93,7 +93,22 @@ class BaseUserSerializer(FlexFieldsModelSerializer):
             "advocacy_intersectionality",
             "advocacy_rights",
             "advocacy_diplomacy", 
-            "advocacy_empiricism"
+            "advocacy_empiricism",
+            # demographics
+            "age",
+            "gender",
+            "ethnicity",
+            "country",
+            "education_level",
+            "income_level",
+            "political_affiliation",
+            "religious_affiliation",
+            # psychometrics scales
+            "openness",
+            "conscientiousness",
+            "extraversion",
+            "agreeableness",
+            "neuroticism"
         )
 
 
@@ -113,7 +128,20 @@ class UserSimpleSerializer(BaseUserSerializer):
             "advocacy_intersectionality",
             "advocacy_rights",
             "advocacy_diplomacy", 
-            "advocacy_empiricism")
+            "advocacy_empiricism",
+            "age",
+            "gender",
+            "ethnicity",
+            "country",
+            "education_level",
+            "income_level",
+            "political_affiliation",
+            "religious_affiliation",
+            "openness",
+            "conscientiousness",
+            "extraversion",
+            "agreeableness",
+            "neuroticism")
 
 
 UserSerializer = load_func(settings.USER_SERIALIZER)

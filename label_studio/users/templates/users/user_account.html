@@ -42,7 +42,7 @@
           <input type="text" class="ls-input" name="last_name" value="{{user.last_name}}" />
         </li>
         <li class="field">
-          <label for="">Phone</label>
+          <label for="">Phone (optional)</label>
           <input type="text" class="ls-input" name="phone" value="{{user.phone}}" />
         </li>
         <div>
@@ -156,6 +156,88 @@
           <span>Empirical Judgements on Effectiveness</span>
         </div>
       </ul>
+
+      <header>Demographics (Optional)</header>
+      <ul>
+        <li class="field">
+          <label for="">Age</label>
+          <input type="text" class="ls-input" name="age" value="{{user.age}}" />
+        </li>
+        <li class="field">
+          <label for="">Gender</label>
+          <input type="text" class="ls-input" name="gender" value="{{user.gender}}" />
+        </li>
+        <li class="field">
+          <label for="">Ethnicity</label>
+          <input type="text" class="ls-input" name="ethnicity" value="{{user.ethnicity}}" />
+        </li>
+        <li class="field">
+          <label for="">Country</label>
+          <input type="text" class="ls-input" name="country" value="{{user.country}}" />
+        </li>
+        <li class="field">
+          <label for="">Education Level</label>
+          <input type="text" class="ls-input" name="education_level" value="{{user.education_level}}" />
+        </li>
+        <li class="field">
+          <label for="">Income Level</label>
+          <input type="text" class="ls-input" name="income_level" value="{{user.income_level}}" />
+        </li>
+        <li class="field">
+          <label for="">Political Affiliation</label>
+          <input type="text" class="ls-input" name="political_affiliation" value="{{user.political_affiliation}}" />
+        </li>
+        <li class="field">
+          <label for="">Religious Affiliation</label>
+          <input type="text" class="ls-input" name="religious_affiliation" value="{{user.religious_affiliation}}" />
+        </li>
+      </ul>
+
+      <header>Psychometrics (Optional)</header>
+      <ul>
+          <label for="openness">Openness to Experience</label>
+          <div class="slidecontainer">
+            <input type="range" min="1" max="5" class="slider" name="openness" id="openness" value="{{user.openness}}">
+          </div>
+          <div class="slider-labels">
+            <span>Practical, traditional, prefers routine</span>
+            <span>Imaginative, open to new experiences, curious</span>
+          </div>
+          <label for="conscientiousness">Conscientiousness</label>
+          <div class="slidecontainer">
+            <input type="range" min="1" max="5" class="slider" name="conscientiousness" id="conscientiousness" value="{{user.conscientiousness}}">
+          </div>
+          <div class="slider-labels">
+            <span>Disorganized, spontaneous, careless</span>
+            <span>Organized, disciplined, goal-oriented</span>
+          </div>
+          <label for="extraversion">Extraversion</label>
+          <div class="slidecontainer">
+            <input type="range" min="1" max="5" class="slider" name="extraversion" id="extraversion" value="{{user.extraversion}}">
+          </div>
+          <div class="slider-labels">
+            <span>Reserved, solitary, quiet</span>
+            <span>Outgoing, sociable, energetic</span>
+          </div>
+          <label for="agreeableness">Agreeableness</label>
+          <div class="slidecontainer">
+            <input type="range" min="1" max="5" class="slider" name="agreeableness" id="agreeableness" value="{{user.agreeableness}}">
+          </div>
+          <div class="slider-labels">
+            <span>Critical, competitive, stubborn</span>
+            <span>Compassionate, cooperative, trusting</span>
+          </div>
+          <label for="neuroticism">Neuroticism</label>
+          <div class="slidecontainer">
+            <input type="range" min="1" max="5" class="slider" name="neuroticism" id="neuroticism" value="{{user.neuroticism}}">
+          </div>
+          <div class="slider-labels">
+            <span>Calm, emotionally stable, resilient</span>
+            <span>Anxious, sensitive, prone to stress</span>
+          </div>
+        
+      </ul>
+   
       <div class="user-some-actions">
 
         <div class="user-pic {{ user.avatar|yesno:'can_delete,can_upload' }}">
