@@ -1,4 +1,8 @@
 import json
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Load the JSON data from the file
 with open('english_spanish_projects.json', 'r') as file:
@@ -67,8 +71,13 @@ def is_response_generation(config):
 
 
 def get_project_category(project_json):
+    
+    logging.debug(f"Getting category for project: {project_json}")
     parsed_label_config = project_json.get('parsed_label_config', {})
-    return categorize_project(parsed_label_config)
+    
+    categorized_project = categorize_project(parsed_label_config)
+    logging.debug(f"Category: {categorized_project}")
+    return categorized_project
 
 # # Extract projects and categorize them
 # unique_configs = set()
