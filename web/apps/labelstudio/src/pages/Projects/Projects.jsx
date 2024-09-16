@@ -72,17 +72,23 @@ export const ProjectsPage = () => {
 
       while (true) {
         const requestParams = { page, page_size: pageSize };
-        if (isFF(FF_DEV_2575)) {
-          requestParams.include = [
-            "id",
-            "title",
-            "created_by",
-            "created_at",
-            "color",
-            "is_published",
-            "assignment_settings",
-          ].join(",");
-        }
+        requestParams.include = [
+          "id",
+          "title",
+          "created_by",
+          "created_at",
+          "color",
+          "is_published",
+          "assignment_settings",
+          "description",
+          "num_tasks_with_annotations",
+          "task_number",
+          "skipped_annotations_number",
+          "total_annotations_number",
+          "total_predictions_number",
+          "ground_truth_number",
+          "finished_task_number",
+        ].join(",");
         const response = await api.callApi('projects', {
           params: requestParams,
           ...(isFF(FF_DEV_2575)
@@ -106,17 +112,23 @@ export const ProjectsPage = () => {
 
     const fetchProjectsByLanguage = async (language) => {
       const requestParams = { language };
-      if (isFF(FF_DEV_2575)) {
-        requestParams.include = [
-          "id",
-          "title",
-          "created_by",
-          "created_at",
-          "color",
-          "is_published",
-          "assignment_settings",
-        ].join(",");
-      }
+      requestParams.include = [
+        "id",
+        "title",
+        "created_by",
+        "created_at",
+        "color",
+        "is_published",
+        "assignment_settings",
+        "description",
+        "num_tasks_with_annotations",
+        "task_number",
+        "skipped_annotations_number",
+        "total_annotations_number",
+        "total_predictions_number",
+        "ground_truth_number",
+        "finished_task_number",
+      ].join(",");
       const response = await api.callApi('projectsByLanguage', {
         // Page and page_size are not needed here, as we are fetching all projects for a language
         params: requestParams,
@@ -139,7 +151,6 @@ export const ProjectsPage = () => {
       data = await fetchProjectsByLanguage(selectedLanguage);
     }
 
-    console.log('data ', data);
 
     setTotalItems(data?.count ?? 1);
     setProjectsList(data ?? []);

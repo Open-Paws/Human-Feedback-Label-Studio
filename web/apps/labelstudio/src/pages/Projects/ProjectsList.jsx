@@ -18,7 +18,6 @@ export const ProjectsList = ({ projects, currentPage, totalItems, loadNextPage, 
   // This could be a place to filter projects by language. 
   // They should have a suffix in their name like "(Spanish)" or "(English)".
   // This should map to a selected language attribute which we should add to the state.
-console.log("ProjectsList", projects);
   // If no language is selected, we should show all projects.
   // If a language is selected, we should only show projects with that language.
   // If no language is selected, we show a language selector.
@@ -112,7 +111,6 @@ const ProjectCard = ({ project }) => {
   }, [color]);
   const config = useConfig();
   const isAdmin = config.user.isAdmin;
-
   return (
     <Elem tag={NavLink} name="link" to={`/projects/${project.id}/data?labeling=1`} data-external>
       <Block name="project-card" mod={{ colored: !!color }} style={projectColors}>
