@@ -18,32 +18,17 @@ export const ProjectsList = ({ projects, currentPage, totalItems, loadNextPage, 
   // This could be a place to filter projects by language. 
   // They should have a suffix in their name like "(Spanish)" or "(English)".
   // This should map to a selected language attribute which we should add to the state.
-
+console.log("ProjectsList", projects);
   // If no language is selected, we should show all projects.
   // If a language is selected, we should only show projects with that language.
   // If no language is selected, we show a language selector.
   const config = useConfig();
   const isAdmin = config.user.isAdmin;
 
-  const filteredProjects = useMemo(() => {
-    console.log('selectedLanguage', selectedLanguage);
-    console.log('projects', projects);
-    if (!selectedLanguage || selectedLanguage === 'All') {
-      return projects;
-    }
-
-    console.log('filtered projects', projects.filter((project) => {
-      return project.title.toLowerCase().includes(selectedLanguage.toLowerCase());
-    }));
-    return projects.filter((project) => {
-      return project.title.toLowerCase().includes(selectedLanguage.toLowerCase());
-    })
-  }, [selectedLanguage, projects])
-
   return (
     <>
       <Elem name="list">
-        {filteredProjects.map((project) => (
+        {projects.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </Elem>

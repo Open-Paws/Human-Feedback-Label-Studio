@@ -25,7 +25,12 @@ services:
   app:
     stdin_open: true
     tty: true
-    build: .
+    build: 
+      context: .
+      args:
+        NODE_VERSION: 18
+      cache_from:
+        - type=local,src=/tmp/.buildx-cache
     image: us-central1-docker.pkg.dev/label-studio-424123/label-studio/label-studio:latest
     restart: unless-stopped
     expose:
@@ -44,6 +49,7 @@ services:
     #      - LOG_LEVEL=DEBUG
     volumes:
       - ./mydata:/label-studio/data:rw
+      - /tmp/.buildx-cache:/tmp/.buildx-cache
     command: label-studio-uwsgi
 
   db:

@@ -196,7 +196,8 @@ def check_storage_configuration(api_url, api_token, json_file_path):
 
 # Function to add storage configurations
 def add_storage_configuration(api_url, api_token, json_file_path):
-    languages = load_languages(json_file_path)
+    languages_unfiltered = load_languages(json_file_path)
+    languages = {k: v for k, v in languages_unfiltered.items() if 'portuguese' in k.lower()}
     projects = get_all_projects(api_url, api_token, 10000)
     input_bucket = 'label-studio-input-open-paws'
     output_bucket = 'label-studio-output'

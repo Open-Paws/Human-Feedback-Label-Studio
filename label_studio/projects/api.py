@@ -180,6 +180,40 @@ class ProjectListAPI(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         return super(ProjectListAPI, self).post(request, *args, **kwargs)
 
+@method_decorator(
+    name='get',
+    decorator=swagger_auto_schema(
+        tags=['Projects'],
+        operation_summary='Filter projects by title',
+        operation_description="""
+        Retrieve a list of projects filtered by title. You can filter projects by specifying a language in the title.
+        """,
+        manual_parameters=[
+            openapi.Parameter(
+                'language',
+                openapi.IN_QUERY,
+                description="Filter projects by language in title",
+                type=openapi.TYPE_STRING
+            )
+        ],
+        responses={200: ProjectSerializer(many=True)}
+    ),
+)
+class ProjectTitleFilterAPI(generics.ListAPIView):
+    parser_classes = (JSONParser, FormParser, MultiPartParser)
+    serializer_class = ProjectSerializer
+    filter_backends = [filters.OrderingFilter, DjangoFilterBackend]
+    filterset_class = ProjectFilterSet
+    permission_required = all_permissions.projects_view
+    pagination_class = ProjectListPagination
+
+    def get_queryset(self):
+        queryset = Project.objects.all()
+        language = self.request.query_params.get('language')
+        if language:
+            queryset = queryset.filter(title__icontains=f'({language})')
+        return queryset
+
 
 @method_decorator(
     name='get',
