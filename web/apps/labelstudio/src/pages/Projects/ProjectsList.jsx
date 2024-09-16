@@ -139,7 +139,7 @@ const ProjectCard = ({ project }) => {
               </Elem>
             )}
           </Elem>
-          <Elem name="summary">
+          {/* <Elem name="summary">
             <Elem name="annotation">
               <Elem name="total">
                 {project.finished_task_number} / {project.task_number}
@@ -159,7 +159,7 @@ const ProjectCard = ({ project }) => {
                 </Elem>
               </Elem>
             </Elem>
-          </Elem>
+          </Elem> */}
         </Elem>
         <Elem name="description">{project.description}</Elem>
         <Elem name="info">
