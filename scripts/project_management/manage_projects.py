@@ -2,13 +2,14 @@ import requests
 import json
 import os
 import argparse
+import time
 import logging
 from parse_label_config import get_project_category
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
-timeoutInt = 100
+timeoutInt = 1000
 
 # Load the languages from the JSON file
 def load_languages(json_file_path):
@@ -222,17 +223,19 @@ def add_storage_configuration(api_url, api_token, json_file_path):
                 logging.info(f"Configured storage for project {project_id} with prefix {prefix}")
 
 # Function to sync all storages
-def sync_all_storages(api_url, api_token, json_file_path):
+def sync_all_storages(api_url, api_token, json_file_path, delay=2):
     languages = load_languages(json_file_path)
     projects = get_all_projects(api_url, api_token, 10000)
-
     for language in languages.keys():
         language_projects = [project for project in projects if language.lower() in project['title'].lower()]
 
         for project in language_projects:
             project_id = project['id']
+            print(f"Processing project ID: {project_id}")
             list_and_sync_input_storages(api_url, api_token, project_id)
+            time.sleep(delay)
             list_and_sync_output_storages(api_url, api_token, project_id)
+            time.sleep(delay)
 
 def main():
     parser = argparse.ArgumentParser(description="Manage Label Studio projects and storages.")
