@@ -24,9 +24,9 @@ def next_task(project, queryset, **kwargs):
     dm_queue = filters_ordering_selected_items_exist(request.data)
     next_task, queue_info = get_next_task(request.user, queryset, project, dm_queue)
 
-    if next_task is None:
-        queryset_list = list(queryset)
-        next_task = random.choice(queryset_list) if queryset_list else None
+    # if next_task is None:
+    queryset_list = list(queryset)
+    next_task = random.choice(queryset_list) if queryset_list else None
 
     if next_task is None:
         raise NotFound(

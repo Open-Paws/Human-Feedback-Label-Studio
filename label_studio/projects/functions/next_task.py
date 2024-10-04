@@ -1,6 +1,7 @@
 import logging
 from collections import Counter
 from typing import List, Tuple, Union
+import random
 
 from core.feature_flags import flag_set
 from core.utils.common import conditional_atomic, db_is_not_sqlite, load_func
@@ -24,14 +25,21 @@ def get_next_task_logging_level(user: User) -> int:
     return level
 
 
-def _get_random_unlocked(task_query: QuerySet[Task], user: User, upper_limit=None) -> Union[Task, None]:
-    for task in task_query.order_by('?').only('id')[: settings.RANDOM_NEXT_TASK_SAMPLE_SIZE]:
+def _get_random_unlocked(task_query: QuerySet[Task], user: User) -> Union[Task, None]:
+    task_ids = list(task_query.values_list('id', flat=True)[:settings.RANDOM_NEXT_TASK_SAMPLE_SIZE])
+    
+    # Shuffle the task IDs to ensure randomness
+    random.shuffle(task_ids)
+    
+    for task_id in task_ids:
         try:
-            task = Task.objects.select_for_update(skip_locked=True).get(pk=task.id)
+            task = Task.objects.select_for_update(skip_locked=True).get(pk=task_id)
             if not task.has_lock(user):
                 return task
         except Task.DoesNotExist:
-            logger.debug('Task with id {} locked'.format(task.id))
+            logger.debug('Task with id {} locked'.format(task_id))
+    
+    return None
 
 
 def _get_first_unlocked(tasks_query: QuerySet[Task], user) -> Union[Task, None]:
@@ -54,7 +62,7 @@ def _try_ground_truth(tasks: QuerySet[Task], project: Project, user: User) -> Un
     )
     if not_solved_tasks_with_ground_truths.exists():
         if project.sampling == project.SEQUENCE:
-            return _get_first_unlocked(not_solved_tasks_with_ground_truths, user)
+            return _get_random_unlocked(not_solved_tasks_with_ground_truths, user)
         return _get_random_unlocked(not_solved_tasks_with_ground_truths, user)
 
 
@@ -130,7 +138,7 @@ def _try_uncertainty_sampling(
                 possible_next_tasks, user, upper_limit=min(num_annotators + 1, num_tasks_with_current_predictions)
             )
         else:
-            next_task = _get_first_unlocked(possible_next_tasks, user)
+            next_task = _get_random_unlocked(possible_next_tasks, user)
     else:
         # uncertainty sampling fallback: choose by random sampling
         logger.debug(
@@ -231,7 +239,7 @@ def get_next_task_without_dm_queue(
 
     if not next_task and prioritized_low_agreement:
         logger.debug(f'User={user} tries low agreement from prepared tasks')
-        next_task = _get_first_unlocked(not_solved_tasks, user)
+        next_task = _get_random_unlocked(not_solved_tasks, user)
         queue_info += (' & ' if queue_info else '') + 'Low agreement queue'
 
     if not next_task and project.show_ground_truth_first:
@@ -256,7 +264,7 @@ def skipped_queue(next_task, prepared_tasks, project, user, queue_info):
         if skipped_tasks.exists():
             preserved_order = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(skipped_tasks)])
             skipped_tasks = prepared_tasks.filter(pk__in=skipped_tasks).order_by(preserved_order)
-            next_task = _get_first_unlocked(skipped_tasks, user)
+            next_task = _get_random_unlocked(skipped_tasks, user)
             queue_info = 'Skipped queue'
 
     return next_task, queue_info
@@ -272,7 +280,7 @@ def postponed_queue(next_task, prepared_tasks, project, user, queue_info):
         if postponed_tasks.exists():
             preserved_order = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(postponed_tasks)])
             postponed_tasks = prepared_tasks.filter(pk__in=postponed_tasks).order_by(preserved_order)
-            next_task = _get_first_unlocked(postponed_tasks, user)
+            next_task = _get_random_unlocked(postponed_tasks, user)
             if next_task is not None:
                 next_task.allow_postpone = False
             queue_info = 'Postponed draft queue'
@@ -291,7 +299,7 @@ def get_task_from_qs_with_sampling(
     next_task = None
     if project.sampling == project.SEQUENCE:
         logger.debug(f'User={user} tries sequence sampling from prepared tasks')
-        next_task = _get_first_unlocked(not_solved_tasks, user)
+        next_task = _get_random_unlocked(not_solved_tasks, user)
         if next_task:
             queue_info += (' & ' if queue_info else '') + 'Sequence queue'
 
