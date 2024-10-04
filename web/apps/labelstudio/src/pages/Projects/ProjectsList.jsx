@@ -18,32 +18,16 @@ export const ProjectsList = ({ projects, currentPage, totalItems, loadNextPage, 
   // This could be a place to filter projects by language. 
   // They should have a suffix in their name like "(Spanish)" or "(English)".
   // This should map to a selected language attribute which we should add to the state.
-
   // If no language is selected, we should show all projects.
   // If a language is selected, we should only show projects with that language.
   // If no language is selected, we show a language selector.
   const config = useConfig();
   const isAdmin = config.user.isAdmin;
 
-  const filteredProjects = useMemo(() => {
-    console.log('selectedLanguage', selectedLanguage);
-    console.log('projects', projects);
-    if (!selectedLanguage || selectedLanguage === 'All') {
-      return projects;
-    }
-
-    console.log('filtered projects', projects.filter((project) => {
-      return project.title.toLowerCase().includes(selectedLanguage.toLowerCase());
-    }));
-    return projects.filter((project) => {
-      return project.title.toLowerCase().includes(selectedLanguage.toLowerCase());
-    })
-  }, [selectedLanguage, projects])
-
   return (
     <>
       <Elem name="list">
-        {filteredProjects.map((project) => (
+        {projects.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </Elem>
@@ -127,7 +111,6 @@ const ProjectCard = ({ project }) => {
   }, [color]);
   const config = useConfig();
   const isAdmin = config.user.isAdmin;
-
   return (
     <Elem tag={NavLink} name="link" to={`/projects/${project.id}/data?labeling=1`} data-external>
       <Block name="project-card" mod={{ colored: !!color }} style={projectColors}>
@@ -156,7 +139,7 @@ const ProjectCard = ({ project }) => {
               </Elem>
             )}
           </Elem>
-          <Elem name="summary">
+          {/* <Elem name="summary">
             <Elem name="annotation">
               <Elem name="total">
                 {project.finished_task_number} / {project.task_number}
@@ -176,7 +159,7 @@ const ProjectCard = ({ project }) => {
                 </Elem>
               </Elem>
             </Elem>
-          </Elem>
+          </Elem> */}
         </Elem>
         <Elem name="description">{project.description}</Elem>
         <Elem name="info">

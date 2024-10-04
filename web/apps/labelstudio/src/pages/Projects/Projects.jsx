@@ -30,7 +30,7 @@ export const ProjectsPage = () => {
   const [networkState, setNetworkState] = React.useState(null);
   const [currentPage, setCurrentPage] = useState(getCurrentPage());
   const [totalItems, setTotalItems] = useState(1);
-  const [selectedLanguage, setSelectedLanguage] = useState();
+  const [selectedLanguage, setSelectedLanguage] = useState(null);
   const setContextProps = useContextProps();
   const defaultPageSize = Number.parseInt(localStorage.getItem("pages:projects-list") ?? 30);
 
@@ -51,18 +51,67 @@ export const ProjectsPage = () => {
   }, []);
 
   useEffect(() => {
-    config.update({ 
-      language:selectedLanguage, 
-      languageLocalCode: languages.find((language) => language.name === selectedLanguage)?.code });
+    config.update({
+      language: selectedLanguage,
+      languageLocalCode: languages.find((language) => language.name === selectedLanguage)?.code
+    });
   }, [selectedLanguage]);
 
   const fetchProjects = async (page = currentPage, pageSize = defaultPageSize) => {
     setNetworkState("loading");
     abortController.renew(); // Cancel any in flight requests
 
-    const requestParams = { page, page_size: pageSize };
 
-    if (isFF(FF_DEV_2575)) {
+
+
+    const fetchAllProjects = async () => {
+      setNetworkState("loading");
+      let allProjects = [];
+      let page = 1;
+      const pageSize = 1000; // Set a large page size to minimize the number of requests
+
+      while (true) {
+        const requestParams = { page, page_size: pageSize };
+        requestParams.include = [
+          "id",
+          "title",
+          "created_by",
+          "created_at",
+          "color",
+          "is_published",
+          "assignment_settings",
+          "description",
+          "num_tasks_with_annotations",
+          "task_number",
+          "skipped_annotations_number",
+          "total_annotations_number",
+          "total_predictions_number",
+          "ground_truth_number",
+          "finished_task_number",
+        ].join(",");
+        const response = await api.callApi('projects', {
+          params: requestParams,
+          ...(isFF(FF_DEV_2575)
+            ? {
+              signal: abortController.controller.current.signal,
+              errorFilter: (e) => e.error.includes("aborted"),
+            }
+            : null),
+        });
+        
+        allProjects = allProjects.concat(response.results);
+
+        if (!response.next) {
+          break;
+        }
+        page += 1;
+      }
+
+      return allProjects;
+    };
+
+    const fetchProjectsByLanguage = async (language) => {
+      const requestParams = { language };
       requestParams.include = [
         "id",
         "title",
@@ -71,68 +120,42 @@ export const ProjectsPage = () => {
         "color",
         "is_published",
         "assignment_settings",
+        "description",
+        "num_tasks_with_annotations",
+        "task_number",
+        "skipped_annotations_number",
+        "total_annotations_number",
+        "total_predictions_number",
+        "ground_truth_number",
+        "finished_task_number",
       ].join(",");
+      const response = await api.callApi('projectsByLanguage', {
+        // Page and page_size are not needed here, as we are fetching all projects for a language
+        params: requestParams,
+        ...(isFF(FF_DEV_2575)
+          ? {
+            signal: abortController.controller.current.signal,
+            errorFilter: (e) => e.error.includes("aborted"),
+          }
+          : null),
+      });
+      // const response = await fetch(`/api/projects/filter-by-language?language=${language}`);
+      
+      return response.results;
+    };
+
+    let data;
+    if (!selectedLanguage || selectedLanguage === "All" || selectedLanguage === '') {
+      data = await fetchAllProjects();
+    } else {
+      data = await fetchProjectsByLanguage(selectedLanguage);
     }
 
-    const fetchAllProjects = async () => {
-      let allProjects = [];
-      let page = 1;
-      const pageSize = 1000; // Set a large page size to minimize the number of requests
-    
-      while (true) {
-        const response = await fetch(`/api/projects?page=${page}&pageSize=${pageSize}`);
-        const data = await response.json();
-        allProjects = allProjects.concat(data.results);
-    
-        if (!data.next) {
-          break;
-        }
-        page += 1;
-      }
-    
-      return allProjects;
-    };
-    const data = await fetchAllProjects(); 
-    console.log('data ',data);
 
     setTotalItems(data?.count ?? 1);
     setProjectsList(data ?? []);
     setNetworkState("loaded");
 
-    // if (isFF(FF_DEV_2575) && data?.results?.length) {
-    //   const additionalData = await api.callApi("projects", {
-    //     params: {
-    //       ids: data?.results?.map(({ id }) => id).join(","),
-    //       include: [
-    //         "id",
-    //         "description",
-    //         "num_tasks_with_annotations",
-    //         "task_number",
-    //         "skipped_annotations_number",
-    //         "total_annotations_number",
-    //         "total_predictions_number",
-    //         "ground_truth_number",
-    //         "finished_task_number",
-    //       ].join(","),
-    //       page_size: pageSize,
-    //     },
-    //     signal: abortController.controller.current.signal,
-    //     errorFilter: (e) => e.error.includes("aborted"),
-    //   });
-
-    //   if (additionalData?.results?.length) {
-    //     setProjectsList((prev) =>
-    //       additionalData.results.map((project) => {
-    //         const prevProject = prev.find(({ id }) => id === project.id);
-
-    //         return {
-    //           ...prevProject,
-    //           ...project,
-    //         };
-    //       }),
-    //     );
-    //   }
-    // }
   };
 
   const loadNextPage = async (page, pageSize) => {
@@ -141,8 +164,10 @@ export const ProjectsPage = () => {
   };
 
   React.useEffect(() => {
-    fetchProjects();
-  }, []);
+    if (selectedLanguage) {
+      fetchProjects();
+    }
+  }, [selectedLanguage]);
 
   React.useEffect(() => {
     // there is a nice page with Create button when list is empty
@@ -156,23 +181,20 @@ export const ProjectsPage = () => {
 
   return (
     <Block name="projects-page">
+      {(!selectedLanguage || selectedLanguage.length < 3) && (<ProjectLanguageSelector setSelectedLanguage={setSelectedLanguage} />)}
       <Oneof value={networkState}>
         <Elem name="loading" case="loading">
           <Spinner size={64} />
         </Elem>
         <Elem name="content" case="loaded">
-          {!selectedLanguage ? (<ProjectLanguageSelector setSelectedLanguage={setSelectedLanguage} />)
-            :
-              (
-                <ProjectsList
-                  projects={projectsList}
-                  currentPage={currentPage}
-                  totalItems={totalItems}
-                  loadNextPage={loadNextPage}
-                  pageSize={defaultPageSize}
-                  selectedLanguage={selectedLanguage}
-                />
-              ) }
+          <ProjectsList
+            projects={projectsList}
+            currentPage={currentPage}
+            totalItems={totalItems}
+            loadNextPage={loadNextPage}
+            pageSize={defaultPageSize}
+            selectedLanguage={selectedLanguage}
+          />
           {modal && <CreateProject onClose={closeModal} />}
         </Elem>
       </Oneof>

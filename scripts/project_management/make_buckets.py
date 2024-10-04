@@ -36,18 +36,23 @@ def main():
     image_feedback_folder_prefix = 'image-feedback-'
     web_page_feedback_folder_prefix = 'web-page-feedback-'
 
-    language_mappings = load_language_mappings(json_file_path)
-
-    # create_language_subfolders(input_bucket_name, response_folder_prefix, language_mappings)
-    # create_language_subfolders(input_bucket_name, feedback_folder_prefix, language_mappings)
-    # create_language_subfolders(input_bucket_name, text_feedback_folder_prefix, language_mappings)
-    # create_language_subfolders(input_bucket_name, image_feedback_folder_prefix, language_mappings)
+    unfiltered_language_mappings = load_language_mappings(json_file_path)
+    
+    # filter out all languages except Portugese
+    # including portugese anywhere in the key, both portugese - BR and portugese - EU
+    language_mappings = {k: v for k, v in unfiltered_language_mappings.items() if 'portuguese' in k.lower()}
+    
+    print(language_mappings)
+    create_language_subfolders(input_bucket_name, response_folder_prefix, language_mappings)
+    create_language_subfolders(input_bucket_name, feedback_folder_prefix, language_mappings)
+    create_language_subfolders(input_bucket_name, text_feedback_folder_prefix, language_mappings)
+    create_language_subfolders(input_bucket_name, image_feedback_folder_prefix, language_mappings)
     create_language_subfolders(input_bucket_name, web_page_feedback_folder_prefix, language_mappings)
 
-    # create_language_subfolders(output_bucket_name, response_folder_prefix, language_mappings)
-    # create_language_subfolders(output_bucket_name, feedback_folder_prefix, language_mappings)
-    # create_language_subfolders(output_bucket_name, text_feedback_folder_prefix, language_mappings)
-    # create_language_subfolders(output_bucket_name, image_feedback_folder_prefix, language_mappings)
+    create_language_subfolders(output_bucket_name, response_folder_prefix, language_mappings)
+    create_language_subfolders(output_bucket_name, feedback_folder_prefix, language_mappings)
+    create_language_subfolders(output_bucket_name, text_feedback_folder_prefix, language_mappings)
+    create_language_subfolders(output_bucket_name, image_feedback_folder_prefix, language_mappings)
     create_language_subfolders(output_bucket_name, web_page_feedback_folder_prefix, language_mappings)
 
 if __name__ == "__main__":
