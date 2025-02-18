@@ -1,3 +1,23 @@
+# Animal Alignment Feedback Collection Tool [DEPRECATED]
+
+⚠️ **This project is deprecated** ⚠️
+
+This Label Studio configuration was used to collect animal advocacy alignment feedback data. The collected data has been processed and is now publicly available on HuggingFace:
+
+🤗 **[Animal Alignment Feedback Dataset](https://huggingface.co/datasets/open-paws/animal_alignment_feedback)**
+
+## Important Notice
+
+While you are welcome to use this repository to collect your own human feedback data for animal advocacy alignment, please note:
+- This repository is no longer actively maintained
+- We cannot guarantee it is free from errors or bugs
+- No security updates are being applied
+- The configuration may need updates to work with newer versions of Label Studio
+
+We recommend thoroughly testing any implementation before using it in production. If you're looking to use our collected data for research or model training, please access it directly through the HuggingFace dataset instead of setting up this labeling infrastructure.
+
+---
+
 <img src="https://user-images.githubusercontent.com/12534576/192582340-4c9e4401-1fe6-4dbb-95bb-fdbba5493f61.png"/>
 
 ![GitHub](https://img.shields.io/github/license/heartexlabs/label-studio?logo=heartex) ![label-studio:build](https://github.com/heartexlabs/label-studio/workflows/label-studio:build/badge.svg) ![GitHub release](https://img.shields.io/github/v/release/heartexlabs/label-studio?include_prereleases)
